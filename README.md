@@ -4,7 +4,7 @@ Skräddarsytt Shopify-tema byggt från grunden för [ivadesign.se](https://ivade
 
 Live sedan september 2026.
 
-![IVA design – startsida](screenshot.png)
+![IVA design – startsida](screenshot.png.PNG)
 
 ## Om projektet
 
