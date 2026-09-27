@@ -1,0 +1,747 @@
+{% comment %}
+  IVA Cart Drawer — Kundvagn
+  Slide-in panel från höger. Inkludera som snippet i theme.liquid:
+    {% render 'iva-cart-drawer' %}
+  Öppnas automatiskt när man klickar på varukorgsikonen i headern.
+  Kräver ingen anpassning av header-filen.
+{% endcomment %}
+
+<div class="ivcd-overlay" id="ivcdOverlay"></div>
+
+<aside class="ivcd" id="ivcd" role="dialog" aria-label="Kundvagn" aria-modal="true">
+
+  <!-- TOPPRAD -->
+  <div class="ivcd-top">
+    <div class="ivcd-top-left">
+      <h2 class="ivcd-heading">Kundvagn</h2>
+      <span class="ivcd-count" id="ivcdCount"></span>
+    </div>
+    <button type="button" class="ivcd-close" id="ivcdClose" aria-label="Stäng kundvagn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- FRAKTBAR -->
+  <div class="ivcd-shipping-bar" id="ivcdShippingBar"></div>
+
+  <!-- PRODUKTER (scrollbar) -->
+  <div class="ivcd-items" id="ivcdItems"></div>
+
+  <!-- TOM VAGN -->
+  <div class="ivcd-empty" id="ivcdEmpty">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:rgba(29,29,31,0.2)">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+    <p class="ivcd-empty-text">Din kundvagn är tom.</p>
+    <button type="button" class="ivcd-empty-btn" id="ivcdEmptyClose">Fortsätt handla</button>
+  </div>
+
+  <!-- SUMMERING + KASSA -->
+  <div class="ivcd-summary" id="ivcdSummary"></div>
+
+</aside>
+
+<style>
+  /* ── OVERLAY ── */
+  .ivcd-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .ivcd-overlay.is-open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── DRAWER ── */
+  .ivcd {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(420px, 96vw);
+    background: #f9f3eb;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .36s cubic-bezier(.4, 0, .2, 1);
+    border-left: 1px solid rgba(212, 195, 172, 0.5);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.08);
+  }
+  .ivcd.is-open {
+    transform: translateX(0);
+  }
+
+  /* ── TOPPRAD ── */
+  .ivcd-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 1.6rem 1.2rem;
+    border-bottom: 1px solid rgba(212, 195, 172, 0.4);
+    flex-shrink: 0;
+  }
+  .ivcd-top-left {
+    display: flex;
+    align-items: baseline;
+    gap: .55rem;
+  }
+  .ivcd-heading {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.45rem;
+    font-weight: 300;
+    letter-spacing: -.3px;
+    color: #1D1D1F;
+    margin: 0;
+  }
+  .ivcd-count {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(29, 29, 31, 0.4);
+  }
+  .ivcd-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1D1D1F;
+    padding: .4rem;
+    margin: -.4rem -.4rem -.4rem 0;
+    line-height: 0;
+    opacity: .55;
+    transition: opacity .2s;
+    flex-shrink: 0;
+  }
+  .ivcd-close:hover { opacity: 1; }
+
+  /* ── FRAKTBAR ── */
+  .ivcd-shipping-bar {
+    padding: 1rem 1.6rem;
+    border-bottom: 1px solid rgba(212, 195, 172, 0.3);
+    flex-shrink: 0;
+    font-size: .82rem;
+    font-weight: 400;
+    letter-spacing: .2px;
+    color: rgba(29, 29, 31, 0.7);
+    display: none;
+  }
+  .ivcd-shipping-bar.is-visible { display: block; }
+  .ivcd-shipping-bar p { margin: 0 0 .65rem; }
+  .ivcd-shipping-bar strong { font-weight: 600; color: #1D1D1F; }
+  .ivcd-shipping-track {
+    height: 5px;
+    background: rgba(212, 195, 172, 0.55);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .ivcd-shipping-fill {
+    height: 100%;
+    background: #4a9e5c;
+    border-radius: 99px;
+    transition: width .5s ease;
+    min-width: 6px;
+  }
+  .ivcd-shipping-fill.is-done {
+    background: #4a9e5c;
+  }
+
+  /* ── PRODUKTER ── */
+  .ivcd-items {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: .4rem 1.6rem;
+    overscroll-behavior: contain;
+    display: none;
+  }
+  .ivcd-items.is-visible { display: block; }
+  .ivcd-items::-webkit-scrollbar { width: 3px; }
+  .ivcd-items::-webkit-scrollbar-thumb {
+    background: rgba(212, 195, 172, 0.7);
+    border-radius: 99px;
+  }
+
+  /* ── PRODUKT-RAD ── */
+  .ivcd-item {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid rgba(212, 195, 172, 0.35);
+    align-items: start;
+  }
+  .ivcd-item:last-child { border-bottom: none; }
+
+  .ivcd-item-img-wrap {
+    width: 76px;
+    height: 96px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #E8DFD3;
+    flex-shrink: 0;
+  }
+  .ivcd-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ivcd-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    padding-top: .1rem;
+  }
+  .ivcd-item-title {
+    font-size: .8rem;
+    font-weight: 500;
+    color: #1D1D1F;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .ivcd-item-variant {
+    font-size: .68rem;
+    font-weight: 300;
+    color: rgba(29, 29, 31, 0.5);
+    margin: 0;
+  }
+  .ivcd-item-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: .55rem;
+  }
+
+  /* Antal-kontroller */
+  .ivcd-qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(212, 195, 172, 0.8);
+    border-radius: 99px;
+    height: 30px;
+    overflow: hidden;
+  }
+  .ivcd-qty-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 28px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .9rem;
+    line-height: 1;
+    color: #1D1D1F;
+    transition: background .15s;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .ivcd-qty-btn:hover { background: rgba(212, 195, 172, 0.4); }
+  .ivcd-qty-btn:disabled { opacity: .35; cursor: default; }
+  .ivcd-qty-num {
+    min-width: 22px;
+    text-align: center;
+    font-size: .75rem;
+    font-weight: 500;
+    color: #1D1D1F;
+    pointer-events: none;
+  }
+
+  .ivcd-item-price {
+    font-size: .82rem;
+    font-weight: 500;
+    color: #1D1D1F;
+  }
+  .ivcd-item-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: .75rem;
+    font-weight: 400;
+    letter-spacing: .4px;
+    color: rgba(29, 29, 31, 0.45);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    margin-top: .4rem;
+    transition: color .2s;
+    align-self: flex-start;
+  }
+  .ivcd-item-remove:hover { color: rgba(29, 29, 31, 0.75); }
+
+  /* ── TOM VAGN ── */
+  .ivcd-empty {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    padding: 2rem 1.6rem;
+  }
+  .ivcd-empty.is-visible { display: flex; }
+  .ivcd-empty-text {
+    font-size: .9rem;
+    font-weight: 300;
+    color: rgba(29, 29, 31, 0.45);
+    margin: 0;
+    text-align: center;
+  }
+  .ivcd-empty-btn {
+    background: none;
+    border: 1.5px solid rgba(29, 29, 31, 0.6);
+    color: #1D1D1F;
+    padding: .65rem 1.7rem;
+    font-size: .62rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background .2s, color .2s, border-color .2s;
+  }
+  .ivcd-empty-btn:hover {
+    background: #1D1D1F;
+    border-color: #1D1D1F;
+    color: #f9f3eb;
+  }
+
+  /* ── SUMMERING ── */
+  .ivcd-summary {
+    flex-shrink: 0;
+    padding: 1.1rem 1.6rem 1.7rem;
+    border-top: 1px solid rgba(212, 195, 172, 0.4);
+    background: #ede4d8;
+    display: none;
+  }
+  .ivcd-summary.is-visible { display: block; }
+
+  .ivcd-summary-rows { margin-bottom: .6rem; }
+  .ivcd-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: .25rem 0;
+    font-size: .76rem;
+    font-weight: 300;
+    color: rgba(29, 29, 31, 0.75);
+  }
+  .ivcd-summary-row.is-total {
+    font-size: .875rem;
+    font-weight: 600;
+    color: #1D1D1F;
+    border-top: 1px solid rgba(212, 195, 172, 0.55);
+    margin-top: .35rem;
+    padding-top: .7rem;
+  }
+  .ivcd-summary-row.is-tax {
+    font-size: .67rem;
+    color: rgba(29, 29, 31, 0.62);
+    padding-top: .1rem;
+  }
+
+  .ivcd-checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    background: #1D1D1F;
+    color: #f9f3eb;
+    border: none;
+    border-radius: 50px;
+    padding: .9rem 1.6rem;
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: .95rem;
+    transition: background .2s, transform .15s, box-shadow .2s;
+  }
+  .ivcd-checkout-btn:hover {
+    background: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  }
+  .ivcd-checkout-btn svg { flex-shrink: 0; }
+
+  /* Laddning-spinner */
+  .ivcd-loading {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ivcd-spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(212, 195, 172, 0.5);
+    border-top-color: #1D1D1F;
+    border-radius: 50%;
+    animation: ivcd-spin .6s linear infinite;
+  }
+  @keyframes ivcd-spin { to { transform: rotate(360deg); } }
+
+  /* ── DESKTOP ── */
+  @media (min-width: 769px) {
+    .ivcd { width: min(500px, 96vw); }
+
+    /* Topprad */
+    .ivcd-top { padding: 1.7rem 2.2rem 1.4rem; }
+    .ivcd-heading { font-size: 1.8rem; }
+    .ivcd-count { font-size: .78rem; letter-spacing: 2.5px; }
+    .ivcd-close svg { width: 22px; height: 22px; }
+
+    /* Fraktbar */
+    .ivcd-shipping-bar { padding: 1.1rem 2.2rem; font-size: .92rem; }
+
+    /* Produkter */
+    .ivcd-items { padding: .5rem 2.2rem; }
+
+    /* Produkt-rad */
+    .ivcd-item { gap: 1.2rem; padding: 1.3rem 0; }
+    .ivcd-item-img-wrap { width: 90px; height: 112px; border-radius: 12px; }
+    .ivcd-item-title { font-size: .95rem; }
+    .ivcd-item-variant { font-size: .78rem; }
+    .ivcd-item-bottom { margin-top: .7rem; }
+    .ivcd-item-price { font-size: .95rem; }
+    .ivcd-item-remove { font-size: .85rem; margin-top: .5rem; }
+
+    /* Qty */
+    .ivcd-qty { height: 36px; }
+    .ivcd-qty-btn { width: 34px; height: 36px; font-size: 1rem; }
+    .ivcd-qty-num { font-size: .85rem; min-width: 26px; }
+
+    /* Tom vagn */
+    .ivcd-empty-text { font-size: 1rem; }
+    .ivcd-empty-btn { font-size: .68rem; padding: .75rem 2rem; }
+
+    /* Summering */
+    .ivcd-summary { padding: 1.4rem 2.2rem 2rem; }
+    .ivcd-summary-row { font-size: 1rem; padding: .36rem 0; }
+    .ivcd-summary-row.is-total { font-size: 1.08rem; padding-top: .9rem; margin-top: .45rem; }
+    .ivcd-summary-row.is-tax { font-size: .88rem; }
+    .ivcd-checkout-btn { font-size: .72rem; padding: 1.05rem 2rem; letter-spacing: 3px; margin-top: 1.1rem; }
+  }
+
+  /* ── MOBIL ── */
+  @media (max-width: 480px) {
+    .ivcd { width: 100vw; border-left: none; }
+    .ivcd-top { padding: 1.2rem 1.4rem 1rem; }
+    .ivcd-items { padding: .4rem 1.4rem; }
+    .ivcd-shipping-bar { padding: .8rem 1.4rem; }
+    .ivcd-summary { padding: 1rem 1.4rem 1.5rem; }
+  }
+</style>
+
+<script>
+(function () {
+  /* ────────────────────────────────────────────
+     KONFIGURATION
+  ──────────────────────────────────────────── */
+  var SHIPPING_LABEL = '45 kr'; /* fast frakt, PostNord Brevlådan */
+
+  /* ────────────────────────────────────────────
+     ELEMENT-REFS
+  ──────────────────────────────────────────── */
+  var drawer      = document.getElementById('ivcd');
+  var overlay     = document.getElementById('ivcdOverlay');
+  var closeBtn    = document.getElementById('ivcdClose');
+  var countEl     = document.getElementById('ivcdCount');
+  var shippingBar = document.getElementById('ivcdShippingBar');
+  var itemsEl     = document.getElementById('ivcdItems');
+  var emptyEl     = document.getElementById('ivcdEmpty');
+  var summaryEl   = document.getElementById('ivcdSummary');
+
+  /* ────────────────────────────────────────────
+     MÄTA FAST TOPPYTA (announcement bar m.m.)
+     Hittar fasta element längst upp i viewporten
+     som är max 80px höga = announcement bars.
+  ──────────────────────────────────────────── */
+  function getTopOffset() {
+    var maxBottom = 0;
+    var candidates = document.querySelectorAll(
+      'body > *, body > * > *, body > * > * > *'
+    );
+    for (var i = 0; i < candidates.length; i++) {
+      var el = candidates[i];
+      if (el === drawer || el === overlay) continue;
+      var s = window.getComputedStyle(el);
+      if (s.position !== 'fixed' && s.position !== 'sticky') continue;
+      var r = el.getBoundingClientRect();
+      if (r.top >= -2 && r.top <= 10 && r.height > 0 && r.height < 80) {
+        maxBottom = Math.max(maxBottom, r.bottom);
+      }
+    }
+    return Math.round(maxBottom);
+  }
+
+  /* ────────────────────────────────────────────
+     ÖPPNA / STÄNG
+  ──────────────────────────────────────────── */
+  function openDrawer() {
+    var top = getTopOffset();
+    drawer.style.top    = top + 'px';
+    drawer.style.height = 'calc(100% - ' + top + 'px)';
+    drawer.classList.add('is-open');
+    overlay.classList.add('is-open');
+    drawer.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    loadCart();
+  }
+
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    overlay.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  /* ────────────────────────────────────────────
+     HELPERS
+  ──────────────────────────────────────────── */
+  function formatPrice(cents) {
+    return (cents / 100).toLocaleString('sv-SE', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }) + ' kr';
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function showLoading() {
+    itemsEl.classList.remove('is-visible');
+    emptyEl.classList.remove('is-visible');
+    summaryEl.classList.remove('is-visible');
+    shippingBar.classList.remove('is-visible');
+    itemsEl.innerHTML = '<div class="ivcd-loading"><div class="ivcd-spinner"></div></div>';
+    itemsEl.classList.add('is-visible');
+  }
+
+  /* ────────────────────────────────────────────
+     HÄMTA CART
+  ──────────────────────────────────────────── */
+  function loadCart() {
+    showLoading();
+    fetch('/cart.js')
+      .then(function (r) { return r.json(); })
+      .then(function (cart) { renderCart(cart); })
+      .catch(function () {
+        itemsEl.innerHTML = '<p style="padding:1rem;font-size:.8rem;color:rgba(29,29,31,0.5)">Kunde inte ladda kundvagnen.</p>';
+      });
+  }
+
+  /* ────────────────────────────────────────────
+     RENDERA CART
+  ──────────────────────────────────────────── */
+  function renderCart(cart) {
+    var count = cart.item_count || 0;
+    var total = cart.total_price || 0;
+
+    /* Antal-badge i header */
+    countEl.textContent = count > 0 ? '(' + count + ')' : '';
+
+    /* Tom vagn */
+    if (count === 0) {
+      itemsEl.classList.remove('is-visible');
+      itemsEl.innerHTML = '';
+      shippingBar.classList.remove('is-visible');
+      summaryEl.classList.remove('is-visible');
+      summaryEl.innerHTML = '';
+      emptyEl.classList.add('is-visible');
+      return;
+    }
+
+    emptyEl.classList.remove('is-visible');
+
+    shippingBar.classList.remove('is-visible');
+
+    /* ── Produktrader ── */
+    var itemsHtml = cart.items.map(function (item) {
+      var imgUrl = '';
+      if (item.featured_image && item.featured_image.url) {
+        imgUrl = item.featured_image.url.split('?')[0] + '?width=160&height=200&crop=center';
+      } else if (item.image) {
+        imgUrl = item.image.split('?')[0] + '?width=160&height=200&crop=center';
+      }
+
+      var variantTitle = (item.variant_title && item.variant_title !== 'Default Title')
+        ? item.variant_title : '';
+
+      var decDisabled = item.quantity <= 1 ? ' disabled' : '';
+
+      return [
+        '<div class="ivcd-item" data-key="', esc(item.key), '">',
+          '<div class="ivcd-item-img-wrap">',
+            imgUrl
+              ? '<img src="' + esc(imgUrl) + '" alt="' + esc(item.title) + '" class="ivcd-item-img" loading="lazy">'
+              : '',
+          '</div>',
+          '<div class="ivcd-item-info">',
+            '<p class="ivcd-item-title">', esc(item.product_title), '</p>',
+            variantTitle ? '<p class="ivcd-item-variant">' + esc(variantTitle) + '</p>' : '',
+            '<div class="ivcd-item-bottom">',
+              '<div class="ivcd-qty">',
+                '<button class="ivcd-qty-btn" data-key="', esc(item.key), '" data-qty="', (item.quantity - 1), '"',
+                  decDisabled, ' aria-label="Minska antal">−</button>',
+                '<span class="ivcd-qty-num">', item.quantity, '</span>',
+                '<button class="ivcd-qty-btn" data-key="', esc(item.key), '" data-qty="', (item.quantity + 1), '"',
+                  ' aria-label="Öka antal">+</button>',
+              '</div>',
+              '<span class="ivcd-item-price">', formatPrice(item.final_line_price), '</span>',
+            '</div>',
+            '<button class="ivcd-item-remove" data-key="', esc(item.key), '" data-qty="0">Ta bort</button>',
+          '</div>',
+        '</div>'
+      ].join('');
+    }).join('');
+
+    itemsEl.innerHTML = itemsHtml;
+    itemsEl.classList.add('is-visible');
+
+    /* ── Summering ── */
+    var shippingLabel = SHIPPING_LABEL;
+    /* Moms 25% inklusiv: moms = pris × (25 / 125) = pris × 0.2 */
+    var taxAmount = Math.round((total + 4500) * 0.2);
+
+    summaryEl.innerHTML = [
+      '<div class="ivcd-summary-rows">',
+        '<div class="ivcd-summary-row">',
+          '<span>Delsumma</span>',
+          '<span>', formatPrice(total), '</span>',
+        '</div>',
+        '<div class="ivcd-summary-row">',
+          '<span>Frakt</span>',
+          '<span>', shippingLabel, '</span>',
+        '</div>',
+        '<div class="ivcd-summary-row is-total">',
+          '<span>Totalsumma (inkl. moms)</span>',
+          '<span>', formatPrice(total + 4500), '</span>',
+        '</div>',
+        '<div class="ivcd-summary-row is-tax">',
+          '<span>Varav moms (25 %)</span>',
+          '<span>', formatPrice(taxAmount), '</span>',
+        '</div>',
+      '</div>',
+      '<a href="/checkout" class="ivcd-checkout-btn">',
+        'Till kassan',
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">',
+          '<path d="M5 12h14M12 5l7 7-7 7"/>',
+        '</svg>',
+      '</a>'
+    ].join('');
+    summaryEl.classList.add('is-visible');
+  }
+
+  /* ────────────────────────────────────────────
+     UPPDATERA ANTAL / TA BORT
+  ──────────────────────────────────────────── */
+  function updateQty(key, qty) {
+    /* Optimistisk UI — inaktivera knappar under request */
+    itemsEl.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ id: key, quantity: qty })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (cart) {
+        renderCart(cart);
+        syncHeaderBadge(cart.item_count);
+      })
+      .catch(function () {
+        itemsEl.querySelectorAll('button').forEach(function (b) { b.disabled = false; });
+      });
+  }
+
+  /* ────────────────────────────────────────────
+     SYNKA HEADER-BADGE
+  ──────────────────────────────────────────── */
+  function syncHeaderBadge(count) {
+    var badge = document.querySelector('.cart-count');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  /* ────────────────────────────────────────────
+     EVENTS
+  ──────────────────────────────────────────── */
+
+  /* Qty-knappar och ta-bort (event delegation) */
+  itemsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.ivcd-qty-btn, .ivcd-item-remove');
+    if (!btn || btn.disabled) return;
+    var key = btn.dataset.key;
+    var qty = parseInt(btn.dataset.qty, 10);
+    updateQty(key, qty);
+  });
+
+  /* Stäng-knappar */
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.getElementById('ivcdEmptyClose').addEventListener('click', closeDrawer);
+
+  /* ESC */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
+  });
+
+  /* ── Haka på cart-ikonen i headern ──
+     Intercept klick på alla /cart-länkar (header-ikon + mobilmeny).
+     Kassan-länken (/checkout) påverkas ej.                          */
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+    var href = link.getAttribute('href') || '';
+    /* Matcha /cart men inte /checkout eller cart/add osv. */
+    if (/^\/cart\/?$/.test(href) || href === window.Shopify && window.Shopify.routes && window.Shopify.routes.cart_url) {
+      e.preventDefault();
+      openDrawer();
+    }
+  });
+
+  /* ── Lyssna på "cart:add" från Shopify AJAX API ──
+     Om temat eller en app dispatch:ar detta event uppdateras drawern. */
+  document.addEventListener('cart:add', function () {
+    if (drawer.classList.contains('is-open')) loadCart();
+    fetch('/cart.js').then(function (r) { return r.json(); }).then(function (c) {
+      syncHeaderBadge(c.item_count);
+    });
+  });
+
+  /* Exponera globalt API för andra scripts */
+  window.IVACart = {
+    open:   openDrawer,
+    close:  closeDrawer,
+    reload: loadCart
+  };
+
+})();
+</script>

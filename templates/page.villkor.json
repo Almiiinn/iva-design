@@ -1,0 +1,94 @@
+{
+  "sections": {
+    "main": {
+      "type": "iva-villkor",
+      "blocks": {
+        "section_01": {
+          "type": "section",
+          "settings": {
+            "title": "Allmänt",
+            "text": "<p>Dessa villkor gäller när du handlar i webbutiken ivadesign.se, som drivs av 2M Interlokal AB, org.nr 559356-3991 (”IVA”, ”vi”). Genom att lägga en beställning godkänner du villkoren. Vi följer svensk konsumentlagstiftning, bland annat konsumentköplagen och distansavtalslagen. För att handla hos oss ska du vara 18 år eller ha målsmans tillstånd.</p>"
+          }
+        },
+        "section_02": {
+          "type": "section",
+          "settings": {
+            "title": "Beställning och avtal",
+            "text": "<p>När du slutfört köpet skickar vi en orderbekräftelse till din e-post. Avtalet blir bindande när du fått bekräftelsen. Vi förbehåller oss rätten att neka eller häva en beställning vid uppenbara felaktigheter i pris eller lagersaldo, vid misstänkt bedrägeri eller om varan inte kan levereras – du meddelas i så fall snarast och eventuell betalning återbetalas.</p>"
+          }
+        },
+        "section_03": {
+          "type": "section",
+          "settings": {
+            "title": "Priser och betalning",
+            "text": "<p>Alla priser anges i svenska kronor inklusive 25 % moms. Eventuell fraktkostnad visas i kassan innan du bekräftar köpet. Betalning sker via Klarna (faktura, delbetalning eller direktbetalning), kort (Visa, Mastercard), Apple Pay eller Google Pay. Vid betalning via Klarna gäller Klarnas villkor för den valda betalmetoden. Vi reserverar oss för prisändringar, slutförsäljning och tryckfel.</p>"
+          }
+        },
+        "section_04": {
+          "type": "section",
+          "settings": {
+            "title": "Leverans",
+            "text": "<p>Vi levererar inom Sverige med PostNord direkt i din brevlåda. Normal leveranstid är 1–5 vardagar från att ordern skickats. Frakten kostar 45 kr per order. Skulle en vara vara försenad meddelar vi dig; är förseningen väsentlig har du rätt att häva köpet. Ej uthämtade paket som går i retur debiteras med 99 kr för frakt och hantering.</p>"
+          }
+        },
+        "section_05": {
+          "type": "section",
+          "settings": {
+            "title": "Ångerrätt och öppet köp",
+            "text": "<p>Du har 14 dagars ångerrätt enligt distansavtalslagen, räknat från den dag du tog emot varan. Du får undersöka varan som i en butik, men används den mer än så kan vi göra avdrag för värdeminskning. Varan ska returneras i ursprungligt skick och med originalförpackning. Meddela oss via <a href=\"/pages/retur\">Ångra &amp; retur</a> eller <a href=\"/pages/kontakt\">kontaktsidan</a>, så får du en QR-kod från PostNord som du visar hos närmaste ombud – ingen skrivare behövs. Returer skickas till 2M Interlokal AB, Gustafsvägen 4, 169 58 Solna. Returfrakt kostar 49 kr och dras av vid återbetalningen. Återbetalning sker inom 14 dagar efter att vi tagit emot returen, med samma betalsätt som vid köpet. Konsumentverkets ångerblankett kan användas och finns på <a href=\"https://www.konsumentverket.se\" target=\"_blank\" rel=\"noopener\">konsumentverket.se</a>.</p>"
+          }
+        },
+        "section_06": {
+          "type": "section",
+          "settings": {
+            "title": "Reklamation och garanti",
+            "text": "<p>Du har reklamationsrätt i tre år enligt konsumentköplagen om varan är felaktig. Reklamera så snart du upptäckt felet via <a href=\"/pages/kontakt\">kontaktsidan</a> – ange ordernummer och bifoga gärna bild. Vid godkänd reklamation står vi för returfrakten och skickar en ny vara, eller återbetalar köpet. Reklamationsrätten omfattar inte normalt slitage eller skador orsakade av felaktig användning.</p>"
+          }
+        },
+        "section_07": {
+          "type": "section",
+          "settings": {
+            "title": "Personuppgifter",
+            "text": "<p>Vi behandlar dina personuppgifter för att kunna hantera din beställning, leverans och kundservice. Läs mer i vår <a href=\"/pages/personuppgiftspolicy\">personuppgiftspolicy</a>.</p>"
+          }
+        },
+        "section_08": {
+          "type": "section",
+          "settings": {
+            "title": "Tvist",
+            "text": "<p>Vid tvist som vi inte kan lösa tillsammans följer vi Allmänna reklamationsnämndens (ARN) rekommendationer. ARN, Box 174, 101 23 Stockholm, <a href=\"https://www.arn.se\" target=\"_blank\" rel=\"noopener\">arn.se</a>. Du kan även använda EU:s plattform för tvistlösning online: <a href=\"https://ec.europa.eu/consumers/odr\" target=\"_blank\" rel=\"noopener\">ec.europa.eu/consumers/odr</a>.</p>"
+          }
+        },
+        "section_09": {
+          "type": "section",
+          "settings": {
+            "title": "Kontakt",
+            "text": "<p>2M Interlokal AB<br>Org.nr 559356-3991<br>Ninni Kronbergs gata 20, 113 68 Stockholm<br>E-post: <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a><br>Vi svarar inom 2 arbetsdagar.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "section_01",
+        "section_02",
+        "section_03",
+        "section_04",
+        "section_05",
+        "section_06",
+        "section_07",
+        "section_08",
+        "section_09"
+      ],
+      "name": "IVA Allmänna villkor",
+      "settings": {
+        "eyebrow": "Juridiskt",
+        "heading": "Allmänna villkor",
+        "text": "Enkelt och tydligt – precis som våra skal.",
+        "company": "2M Interlokal AB, org.nr 559356-3991",
+        "updated": "25 september 2026"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

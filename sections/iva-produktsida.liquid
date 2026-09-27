@@ -1,0 +1,809 @@
+{% comment %}
+  IVA Produktsida v1 — sections/iva-produktsida.liquid
+  Galleri (sticky på desktop, swipe på mobil) · pris · färgsyskon via tagg
+  "grupp-xxx" · modellväljare · köpknapp · dragspel · relaterade produkter
+  · sticky köpbar på mobil.
+{% endcomment %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign skip_imgs = section.settings.skip_images | default: 0 | plus: 0 -%}
+{%- assign max_imgs  = section.settings.max_images  | default: 0 | plus: 0 -%}
+{%- assign all_imgs  = product.media | where: 'media_type', 'image' -%}
+{%- assign rest = all_imgs.size | minus: skip_imgs -%}
+{%- if rest < 1 -%}{%- assign skip_imgs = 0 -%}{%- assign rest = all_imgs.size -%}{%- endif -%}
+{%- if max_imgs > 0 and max_imgs < rest -%}{%- assign rest = max_imgs -%}{%- endif -%}
+{%- assign gallery_media = all_imgs | slice: skip_imgs, rest -%}
+{%- assign has_options = false -%}
+{%- unless product.has_only_default_variant -%}{%- assign has_options = true -%}{%- endunless -%}
+
+{%- comment -%} Färg-karta: tagg → hex + namn (samma som kollektionssidan) {%- endcomment -%}
+{%- assign color_map = "svart:#212123:Svart|orange:#DC591B:Orange|vinrod:#772A36:Vinröd|bordeauxrosa:#A02659:Bordeaux Rosa|dustyrose:#BD9092:Dusty Rose|lavendelbla:#6C6E9A:Lavendelblå|beige:#C4B09A:Beige|lila:#C59FE8:Lila|morkbla:#1E3A5F:Mörkblå|ljussalvia:#9FA79E:Ljus salvia|salviagron:#9BA5A2:Salvia grön|mintgron:#BDC9A8:Mintgrön|gra:#6A6A6A:Grå|ljusgra:#8E8E8E:Ljusgrå|ivory:#E8D8B8:Ivory|pastellrosa:#EFC8D4:Pastellrosa|magenta:#A5255F:Magenta|djuprosa:#E83473:Djup rosa" | split: "|" -%}
+
+{%- comment -%} Grupp = Produkttyp (t.ex. "Magsafe"), annars tagg "grupp-xxx". Färg = färgtagg eller första ordet i titeln. {%- endcomment -%}
+{%- assign group_type = product.type | strip -%}
+{%- assign group_tag = '' -%}
+{%- for tag in product.tags -%}{%- if tag contains 'grupp-' -%}{%- assign group_tag = tag -%}{%- endif -%}{%- endfor -%}
+{%- assign my_color_name = '' -%}
+{%- assign title_first = product.title | split: ' ' | first | downcase -%}
+{%- for c in color_map -%}
+  {%- assign parts = c | split: ':' -%}
+  {%- assign cname = parts[2] | downcase -%}
+  {%- if product.tags contains parts[0] or title_first == cname -%}{%- assign my_color_name = parts[2] -%}{%- endif -%}
+{%- endfor -%}
+
+<section class="ivp" id="ivp" data-section-id="{{ section.id }}">
+
+  <nav class="ivp-crumbs" aria-label="Brödsmulor">
+    <a href="{{ routes.root_url }}">Hem</a><span>·</span>
+    {%- if collection -%}<a href="{{ collection.url }}">{{ collection.title }}</a>{%- else -%}<a href="{{ routes.all_products_collection_url }}">Kollektioner</a>{%- endif -%}
+    <span>·</span><b>{{ product.title }}</b>
+  </nav>
+
+  <div class="ivp-grid">
+
+    <!-- ═══════════ GALLERI ═══════════ -->
+    <div class="ivp-gallery">
+      <div class="ivp-thumbs" id="ivpThumbs">
+        {%- for media in gallery_media -%}
+          {%- if media.media_type == 'image' -%}
+            <button class="ivp-thumb{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" aria-label="Bild {{ forloop.index }}">
+              <img src="{{ media | image_url: width: 160 }}" alt="" loading="lazy" width="80" height="80">
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="ivp-stage-wrap">
+        <div class="ivp-stage" id="ivpStage">
+          {%- for media in gallery_media -%}
+            {%- if media.media_type == 'image' -%}
+              <div class="ivp-slide" data-index="{{ forloop.index0 }}" data-model="{{ media.alt | downcase | escape }}">
+                <img
+                  src="{{ media | image_url: width: 1200 }}"
+                  srcset="{{ media | image_url: width: 700 }} 700w, {{ media | image_url: width: 1200 }} 1200w"
+                  sizes="(max-width: 860px) 100vw, 55vw"
+                  alt="{{ media.alt | default: product.title | escape }}"
+                  class="ivp-img"
+                  {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+                  width="1200" height="{{ 1200 | divided_by: media.aspect_ratio | round }}">
+                <button type="button" class="ivp-fav" aria-pressed="false" aria-label="Spara som favorit"
+                  data-handle="{{ product.handle }}" data-title="{{ product.title | escape }}" data-url="{{ product.url }}"
+                  data-price="{{ product.price | money }}" data-img="{{ product.featured_image | image_url: width: 500 }}">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 21s-7.2-4.6-9.6-9.1C.7 8.6 2.4 4.6 6.2 4.1c2.2-.3 4 .8 5.8 2.8 1.8-2 3.6-3.1 5.8-2.8 3.8.5 5.5 4.5 3.8 7.8C19.2 16.4 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- if gallery_media.size > 1 -%}
+          <div class="ivp-dots" id="ivpDots" aria-hidden="true">
+            {%- for media in gallery_media -%}{%- if media.media_type == 'image' -%}<i{% if forloop.first %} class="is-active"{% endif %}></i>{%- endif -%}{%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- ═══════════ KÖP ═══════════ -->
+    <div class="ivp-buy">
+      {%- if section.settings.eyebrow != blank -%}<p class="ivp-eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+      <h1 class="ivp-title">{{ product.title }}</h1>
+
+      <div class="ivp-price-row" id="ivpPriceRow">
+        <span class="ivp-price" id="ivpPrice">{{ current_variant.price | money }}</span>
+        <s class="ivp-compare" id="ivpCompare"{% unless current_variant.compare_at_price > current_variant.price %} hidden{% endunless %}>{{ current_variant.compare_at_price | money }}</s>
+        <span class="ivp-save" id="ivpSave"{% unless current_variant.compare_at_price > current_variant.price %} hidden{% endunless %}>
+          {%- if current_variant.compare_at_price > current_variant.price -%}
+            {%- assign diff = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+            Spara {{ diff }} %
+          {%- endif -%}
+        </span>
+      </div>
+
+      {%- if section.settings.lead != blank -%}
+        <p class="ivp-lead">{{ section.settings.lead }}</p>
+      {%- elsif product.description != blank -%}
+        <p class="ivp-lead">{{ product.description | strip_html | truncate: 140 }}</p>
+      {%- endif -%}
+
+      {%- comment -%} ── FÄRGER: från "Färggrupp"-block (samma som startsidan). Fallback: Produkttyp/grupp-tagg ── {%- endcomment -%}
+      {%- assign sibling_count = 0 -%}
+      {%- capture sibling_html -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type != 'color_group' -%}{%- continue -%}{%- endif -%}
+          {%- assign in_group = false -%}
+          {%- for i in (1..6) -%}
+            {%- assign pk = 'product_' | append: i -%}
+            {%- assign bp = block.settings[pk] -%}
+            {%- if bp != blank and bp.id == product.id -%}{%- assign in_group = true -%}{%- endif -%}
+          {%- endfor -%}
+          {%- if in_group -%}
+            {%- for i in (1..6) -%}
+              {%- assign pk = 'product_' | append: i -%}
+              {%- assign ck = 'color_' | append: i -%}
+              {%- assign bp = block.settings[pk] -%}
+              {%- assign bc = block.settings[ck] -%}
+              {%- if bp != blank and bc != blank -%}
+                {%- assign sibling_count = sibling_count | plus: 1 -%}
+                {%- assign bname = bp.title | split: ' - ' | first -%}
+                <a href="{{ bp.url }}" class="ivp-swatch{% if bp.id == product.id %} is-active{% endif %}" style="background:{{ bc }}" title="{{ bname | escape }}" aria-label="{{ bname | escape }}"{% if bp.id == product.id %} aria-current="page" data-name="{{ bname | escape }}"{% endif %}></a>
+              {%- endif -%}
+            {%- endfor -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- if sibling_count == 0 and group_type != blank or sibling_count == 0 and group_tag != blank -%}
+        {%- capture sibling_html -%}
+          {%- for p in collections.all.products -%}
+            {%- assign same = false -%}
+            {%- if group_type != blank and p.type == group_type -%}{%- assign same = true -%}{%- endif -%}
+            {%- if group_tag != blank and p.tags contains group_tag -%}{%- assign same = true -%}{%- endif -%}
+            {%- if same -%}
+              {%- assign p_hex = '' -%}{%- assign p_name = '' -%}
+              {%- assign p_first = p.title | split: ' ' | first | downcase -%}
+              {%- for c in color_map -%}
+                {%- assign parts = c | split: ':' -%}
+                {%- assign cname = parts[2] | downcase -%}
+                {%- if p.tags contains parts[0] or p_first == cname -%}{%- assign p_hex = parts[1] -%}{%- assign p_name = parts[2] -%}{%- endif -%}
+              {%- endfor -%}
+              {%- if p_hex != blank -%}
+                {%- assign sibling_count = sibling_count | plus: 1 -%}
+                <a href="{{ p.url }}" class="ivp-swatch{% if p.id == product.id %} is-active{% endif %}" style="background:{{ p_hex }}" title="{{ p_name }}" aria-label="{{ p_name }}"{% if p.id == product.id %} aria-current="page"{% endif %}></a>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+      {%- endif -%}
+
+      {%- if sibling_count > 1 -%}
+        <div class="ivp-opt">
+          <p class="ivp-opt-label">Färg{% if my_color_name != blank %} — <b>{{ my_color_name }}</b>{% else %} — <b id="ivpColorName"></b>{% endif %}</p>
+          <div class="ivp-swatches">{{ sibling_html }}</div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} ── VARIANTER (t.ex. Modell) ── {%- endcomment -%}
+      {%- form 'product', product, id: 'ivpForm', class: 'ivp-form product-form' -%}
+        {%- if has_options -%}
+          {%- for option in product.options_with_values -%}
+            <div class="ivp-opt ivp-opt--select" data-option-index="{{ forloop.index0 }}">
+              <p class="ivp-opt-label">{{ option.name }}</p>
+              <div class="ivp-select-wrap">
+                <select class="ivp-select" name="option-{{ forloop.index0 }}" aria-label="{{ option.name | escape }}">
+                  {%- for value in option.values -%}
+                    <option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value }}</option>
+                  {%- endfor -%}
+                </select>
+                <svg class="ivp-select-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+
+        <input type="hidden" name="id" id="ivpVariantId" value="{{ current_variant.id }}">
+
+        <div class="ivp-cta-row" id="ivpCtaRow">
+          <div class="ivp-qty">
+            <button type="button" class="ivp-qty-btn" data-dir="-1" aria-label="Minska">−</button>
+            <input type="number" name="quantity" id="ivpQty" value="1" min="1" inputmode="numeric" aria-label="Antal">
+            <button type="button" class="ivp-qty-btn" data-dir="1" aria-label="Öka">+</button>
+          </div>
+          <button type="submit" name="add" class="ivp-add product-form__submit" id="ivpAdd" data-notify-me-anchor{% unless current_variant.available %} disabled{% endunless %}>
+            <span class="ivp-add-text">{% if current_variant.available %}Lägg i varukorg{% else %}Slutsåld{% endif %}</span>
+            <span class="ivp-add-price" id="ivpAddPrice">{{ current_variant.price | money }}</span>
+          </button>
+        </div>
+        <p class="ivp-added" id="ivpAddedMsg" hidden>✓ Tillagd i varukorgen — <a href="{{ routes.cart_url }}">gå till kassan →</a></p>
+      {%- endform -%}
+
+      {%- comment -%} ── BEVAKA (Notify Me!-app). App-blocket läggs till i temaredigeraren → IVA Produktsida → Lägg till block → Appar → Notify Me ── {%- endcomment -%}
+      {%- if section.settings.notify_enable -%}
+        <div class="ivp-notify-wrap" id="ivpNotifyWrap" hidden>
+          {%- for block in section.blocks -%}
+            {%- if block.type == '@app' -%}
+              {%- render block -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.trust_show -%}
+        <div class="ivp-trust">
+          {%- if section.settings.trust_heading != blank -%}
+            <p class="ivp-trust-title">{{ section.settings.trust_heading }}</p>
+          {%- endif -%}
+          <ul class="ivp-trust-list">
+            {%- for type in shop.enabled_payment_types -%}
+              <li class="ivp-trust-pill ivp-trust-pill--pay">{{ type | payment_type_svg_tag: class: 'ivp-trust-icon' }}</li>
+            {%- endfor -%}
+            {%- assign carriers = section.settings.trust_shipping | split: ',' -%}
+            {%- for c in carriers -%}
+              {%- assign name = c | strip -%}
+              {%- if name != blank -%}
+                <li class="ivp-trust-pill ivp-trust-pill--ship">{{ name }}</li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <div class="ivp-acc">
+        {%- if product.description != blank -%}
+          <details open>
+            <summary>Produktbeskrivning</summary>
+            <div class="ivp-acc-body rte">{{ product.description }}</div>
+          </details>
+        {%- endif -%}
+        {%- assign spec_mf = product.metafields.custom.specifikationer -%}
+        {%- if spec_mf != blank -%}
+          <details>
+            <summary>Specifikationer</summary>
+            <div class="ivp-acc-body rte">
+              {%- if spec_mf.type == 'rich_text_field' -%}{{ spec_mf | metafield_tag }}{%- else -%}{{ spec_mf.value | newline_to_br }}{%- endif -%}
+            </div>
+          </details>
+        {%- elsif section.settings.specs != blank -%}
+          <details>
+            <summary>Specifikationer</summary>
+            <div class="ivp-acc-body rte">{{ section.settings.specs }}</div>
+          </details>
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ FEATURE ═══════════ -->
+  {%- assign feat_blocks = section.blocks | where: 'type', 'feat_image' -%}
+  {%- if section.settings.feat_heading != blank and feat_blocks.size > 0 -%}
+    <div class="ivp-feat">
+      <div class="ivp-feat-img" id="ivpFeatFade" data-interval="{{ section.settings.feat_interval | default: 5 }}">
+        {%- for block in feat_blocks -%}
+          {%- if block.settings.image != blank -%}
+            <img src="{{ block.settings.image | image_url: width: 1200 }}"
+                 alt="{{ section.settings.feat_heading | escape }}"
+                 class="ivp-fade{% if forloop.first %} is-on{% endif %}"
+                 loading="lazy" width="1200" height="{{ 1200 | divided_by: block.settings.image.aspect_ratio | round }}"
+                 {{ block.shopify_attributes }}>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <div class="ivp-feat-text">
+        {%- if section.settings.feat_eyebrow != blank -%}<p class="ivp-eyebrow">{{ section.settings.feat_eyebrow }}</p>{%- endif -%}
+        <h2>{{ section.settings.feat_heading | newline_to_br }}</h2>
+        {%- if section.settings.feat_text != blank -%}<p>{{ section.settings.feat_text }}</p>{%- endif -%}
+        <a class="ivp-ghost" href="{{ section.settings.feat_link | default: '/collections/all' }}">{{ section.settings.feat_link_label | default: 'Se hela kollektionen' }}</a>
+      </div>
+    </div>
+  {%- endif -%}
+
+  <!-- ═══════════ RELATERADE (slumpas i JS) ═══════════ -->
+  {%- assign rel_src = collections.all.products -%}
+  {%- if rel_src.size > 1 -%}
+    <div class="ivp-rel" id="ivpRel" hidden>
+      <p class="ivp-eyebrow" style="text-align:center">Du kanske också gillar</p>
+      <div class="ivp-rel-grid" id="ivpRelGrid">
+        {%- assign rel_count = 0 -%}
+        {%- for p in rel_src limit: 60 -%}
+          {%- if p.id == product.id or p.available == false -%}{%- continue -%}{%- endif -%}
+          {%- comment -%} hoppa över färgsyskon (samma typ) så det blir variation {%- endcomment -%}
+          {%- if product.type != blank and p.type == product.type -%}{%- continue -%}{%- endif -%}
+          {%- assign rel_count = rel_count | plus: 1 -%}
+          <a class="ivp-card" href="{{ p.url }}" data-type="{{ p.type | escape }}" hidden>
+            <div class="ivp-card-img">
+              {%- if p.featured_image != blank -%}
+                <img src="{{ p.featured_image | image_url: width: 500 }}" alt="{{ p.title | escape }}" loading="lazy" width="500" height="{{ 500 | divided_by: p.featured_image.aspect_ratio | round }}" class="ivp-card-main">
+                {%- if p.images.size > 1 -%}
+                  <img src="{{ p.images[1] | image_url: width: 500 }}" alt="" loading="lazy" width="500" height="{{ 500 | divided_by: p.images[1].aspect_ratio | round }}" class="ivp-card-hover" aria-hidden="true">
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+            <b>{{ p.title }}</b>
+            <span>{{ p.price | money }}</span>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+    <script>
+      (function(){
+        var wrap=document.getElementById('ivpRel'), grid=document.getElementById('ivpRelGrid');
+        if(!wrap||!grid) return;
+        var cards=Array.prototype.slice.call(grid.querySelectorAll('.ivp-card'));
+        if(!cards.length) return;
+        for(var i=cards.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=cards[i];cards[i]=cards[j];cards[j]=t;}
+        // försök visa olika produkttyper först, fyll sedan på
+        var picked=[], seen={};
+        cards.forEach(function(c){var t=c.getAttribute('data-type')||c.querySelector('b').textContent; if(picked.length<4 && !seen[t]){seen[t]=1;picked.push(c);}});
+        cards.forEach(function(c){ if(picked.length<4 && picked.indexOf(c)<0) picked.push(c); });
+        grid.innerHTML='';
+        picked.forEach(function(c){ c.removeAttribute('hidden'); grid.appendChild(c); });
+        wrap.removeAttribute('hidden');
+      })();
+    </script>
+  {%- endif -%}
+
+  <!-- ═══════════ STICKY BAR (mobil) ═══════════ -->
+  <div class="ivp-sticky" id="ivpSticky" aria-hidden="true">
+    <div class="ivp-sticky-info">
+      <b>{{ product.title }}</b>
+      <span id="ivpStickyPrice">{{ current_variant.price | money }}</span>
+    </div>
+    <button type="button" class="ivp-add ivp-add--sticky" id="ivpStickyAdd">Lägg i varukorg</button>
+    <button type="button" class="ivp-notify ivp-notify--sticky" id="ivpStickyNotify" hidden>{{ section.settings.notify_label }}</button>
+  </div>
+
+</section>
+
+<script type="application/json" id="ivpVariants">{{ product.variants | json }}</script>
+
+<style>
+  .ivp { background: #faf6f0; color: #1D1D1F; margin-bottom: -2px; }
+  .ivp *, .ivp *::before, .ivp *::after { box-sizing: border-box; }
+
+  .ivp-crumbs { max-width: 1400px; margin: 0 auto; padding: 1rem 1.25rem 0; font-size: .72rem; color: rgba(29,29,31,.55); display: flex; gap: .45rem; flex-wrap: wrap; }
+  .ivp-crumbs a { color: inherit; text-decoration: none; }
+  .ivp-crumbs b { color: #1D1D1F; font-weight: 500; }
+
+  .ivp-grid { max-width: 1400px; margin: 0 auto; padding: 1rem 0 2.5rem; display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* ── GALLERI ── */
+  .ivp-gallery { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+  .ivp-thumbs { display: none; }
+  .ivp-stage-wrap { position: relative; }
+  .ivp-stage { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: .6rem; padding: .25rem 1rem 1.4rem; scroll-padding-left: 1rem; }
+  .ivp-stage::-webkit-scrollbar { display: none; }
+  .ivp-slide { position: relative; flex: 0 0 84%; scroll-snap-align: start; aspect-ratio: 3 / 4; background: {{ section.settings.stage_bg | default: '#ffffff' }}; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 22px rgba(29,29,31,.12); }
+  .ivp-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .ivp-fav { position: absolute; top: .8rem; right: .8rem; z-index: 3; width: 42px; height: 42px; border-radius: 50%; border: 0; background: #fff; color: #1D1D1F; box-shadow: 0 2px 10px rgba(29,29,31,.14); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s; }
+  .ivp-fav:active { transform: scale(.9); }
+  .ivp-fav.is-on { color: #c0392b; }
+  .ivp-fav.is-on svg path { fill: currentColor; }
+  .ivp-fav-toast { position: fixed; left: 50%; bottom: 90px; z-index: 9999; transform: translateX(-50%) translateY(10px); background: #1D1D1F; color: #fff; font-size: .8rem; padding: .7rem 1.1rem; border-radius: 50px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 60; white-space: nowrap; }
+  .ivp-fav-toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .ivp-fav-toast a { color: #fff; text-decoration: underline; margin-left: .4rem; padding: .3rem .2rem; }
+  .ivp-dots { position: absolute; left: 0; right: 0; bottom: .1rem; display: flex; justify-content: center; gap: .4rem; }
+  .ivp-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(29,29,31,.25); transition: all .25s; }
+  .ivp-dots i.is-active { background: #1D1D1F; width: 18px; border-radius: 4px; }
+  .ivp-badge { position: absolute; top: 1rem; left: 1rem; background: #1D1D1F; color: #f9f3eb; font-size: .55rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: .3rem .65rem; border-radius: 50px; }
+  .ivp-badge--sale { background: #c0392b; color: #fff; }
+
+  /* ── KÖP ── */
+  .ivp-buy { padding: 0 1.25rem; }
+  .ivp-eyebrow { font-size: .62rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.55); margin: 0 0 .5rem; }
+  .ivp-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.9rem, 6.5vw, 2.6rem); font-weight: 500; line-height: 1.1; letter-spacing: -.3px; color: #1D1D1F !important; margin: 0 0 .6rem; }
+  .ivp-price-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .9rem; }
+  .ivp-price { font-size: 1.35rem; font-weight: 600; }
+  .ivp-compare { font-size: .95rem; color: rgba(29,29,31,.45); }
+  .ivp-save { font-size: .58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; background: rgba(214,140,0,.12); color: #a86a00; padding: .3rem .65rem; border-radius: 50px; }
+  .ivp-lead { font-size: 1.02rem; line-height: 1.65; color: rgba(29,29,31,.72); margin: 0 0 1.5rem; }
+
+  .ivp-opt { margin-bottom: 1.2rem; }
+  .ivp-opt-label { font-size: .64rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(29,29,31,.55); margin: 0 0 .55rem; }
+  .ivp-opt-label b { color: #1D1D1F; font-weight: 600; }
+  .ivp-swatches { display: flex; flex-wrap: wrap; gap: .55rem; }
+  .ivp-swatch { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #faf6f0; box-shadow: 0 0 0 1px rgba(29,29,31,.15); transition: transform .15s, box-shadow .15s; }
+  .ivp-swatch:hover { transform: scale(1.1); }
+  .ivp-swatch.is-active { box-shadow: 0 0 0 2px #1D1D1F; }
+  .ivp-select-wrap { position: relative; }
+  .ivp-select { width: 100%; appearance: none; -webkit-appearance: none; background: #fff; border: 1.5px solid #1D1D1F; border-radius: 50px; padding: .9rem 3rem .9rem 1.3rem; font: inherit; font-size: .88rem; font-weight: 500; color: #1D1D1F; cursor: pointer; text-align: center; text-align-last: center; }
+  .ivp-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(29,29,31,.12); }
+  .ivp-select-chev { position: absolute; right: 1.1rem; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); pointer-events: none; }
+  .ivp-select option.is-soldout { color: #999; }
+  .ivp-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .ivp-chip { position: relative; cursor: pointer; }
+  .ivp-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .ivp-chip span { display: inline-block; padding: .6rem 1rem; border: 1px solid rgba(29,29,31,.15); border-radius: 50px; font-size: .78rem; background: #fff; transition: all .2s; }
+  .ivp-chip.is-active span { background: #1D1D1F; color: #fff; border-color: #1D1D1F; }
+  .ivp-chip.is-soldout span { color: rgba(29,29,31,.35); text-decoration: line-through; }
+
+  .ivp [hidden], .ivp-sticky [hidden] { display: none !important; }
+  /* Bevaka */
+  .ivp-notify { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .55rem; margin-top: .4rem; height: 52px; padding: 0 1.4rem; border-radius: 50px; border: 1.5px solid #1D1D1F; background: transparent; color: #1D1D1F; font-size: .72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s; }
+  .ivp-notify:hover { background: #1D1D1F; color: #fff; }
+  .ivp-notify--sticky { width: auto; margin: 0; height: 44px; padding: 0 1.1rem; font-size: .62rem; }
+  .ivp-notify-hint { font-size: .78rem; color: rgba(29,29,31,.65); margin: .6rem 0 0; text-align: center; }
+  .ivp-cta-row.is-soldout .ivp-qty { display: none; }
+  .ivp-cta-row.is-soldout #ivpAdd { display: none; }
+  .ivp-cta-row.is-soldout { flex-direction: column; }
+  /* Notify Me!-knappen (injiceras av appen i .nm-portal) i IVA-stil */
+  .ivp-cta-row .nm-portal { width: 100%; }
+  .ivp-cta-row .restock-alerts-notify-button {
+    width: 100% !important; height: 52px !important; border-radius: 50px !important; border: 1.5px solid #1D1D1F !important; background: transparent !important; color: #1D1D1F !important;
+    font-size: .72rem !important; font-weight: 600 !important; letter-spacing: 2px !important; text-transform: uppercase !important; font-family: inherit !important; cursor: pointer; margin: 0 !important; box-shadow: none !important;
+  }
+  .ivp-cta-row .restock-alerts-notify-button:hover { background: #1D1D1F !important; color: #fff !important; }
+  .ivp-notify-wrap { margin-top: .4rem; }
+  .ivp-notify-wrap[hidden] { display: none !important; }
+  .ivp-notify-field { display: block; margin-bottom: .8rem; }
+  .ivp-notify-field span { display: block; font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(29,29,31,.6); margin-bottom: .35rem; }
+  .ivp-notify-field input { width: 100%; height: 44px; border-radius: 50px; border: 1px solid rgba(29,29,31,.15); background: #fff; padding: 0 1rem; font-size: .9rem; color: #1D1D1F; }
+  .ivp-notify-submit { width: 100%; justify-content: center; }
+  .ivp-notify-small { font-size: .74rem; color: rgba(29,29,31,.6); margin: .6rem 0 0; text-align: center; }
+  .ivp-notify-ok { margin: 0; font-size: .9rem; line-height: 1.5; }
+  .ivp-notify-err { margin: 0 0 .6rem; font-size: .82rem; color: #c0392b; }
+  .ivp-cta-row { display: flex; gap: .6rem; margin-top: .4rem; }
+  .ivp-qty { display: flex; align-items: center; border: 1px solid rgba(29,29,31,.15); border-radius: 50px; background: #fff; flex: 0 0 auto; }
+  .ivp-qty-btn { width: 40px; height: 48px; background: none; border: 0; font-size: 1.1rem; cursor: pointer; color: #1D1D1F; }
+  .ivp-qty input { width: 34px; text-align: center; border: 0; background: none; font: inherit; font-weight: 600; -moz-appearance: textfield; }
+  .ivp-qty input::-webkit-outer-spin-button, .ivp-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .ivp-add { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 1.4rem; height: 48px; background: #1D1D1F; color: #fff; border: 1.5px solid #1D1D1F; border-radius: 50px; font-family: inherit; font-size: .68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s; }
+  .ivp-add:hover { background: #000; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.16); }
+  .ivp-add:disabled { background: rgba(29,29,31,.25); border-color: transparent; cursor: not-allowed; transform: none; box-shadow: none; }
+  .ivp-add.is-loading { opacity: .6; pointer-events: none; }
+  .ivp-add-price { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: .82rem; opacity: .85; }
+  .ivp-added { font-size: .82rem; color: #2e7d32; margin: .7rem 0 0; }
+  .ivp-added a { color: inherit; text-decoration: underline; }
+
+
+  .ivp-trust { margin-top: 1.4rem; }
+  .ivp-trust-title { font-weight: 600; font-size: .9rem; margin: 0 0 .7rem; }
+  .ivp-trust-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .ivp-trust-pill { display: inline-flex; align-items: center; justify-content: center; height: 38px; padding: 0 .9rem; border-radius: 9px; background: #f0e6d3; color: #1D1D1F; }
+  .ivp-trust-pill--ship { font-weight: 700; font-size: .82rem; letter-spacing: .02em; text-transform: lowercase; }
+  .ivp-trust-icon { height: 24px; width: auto; display: block; }
+  .ivp-acc { margin-top: 1.3rem; border-top: 1px solid rgba(29,29,31,.09); }
+  .ivp-acc details { border-bottom: 1px solid rgba(29,29,31,.09); }
+  .ivp-acc summary { list-style: none; cursor: pointer; padding: 1rem 0; font-weight: 600; font-size: .9rem; display: flex; justify-content: space-between; align-items: center; }
+  .ivp-acc summary::-webkit-details-marker { display: none; }
+  .ivp-acc summary::after { content: '+'; font-weight: 300; font-size: 1.3rem; line-height: 1; }
+  .ivp-acc details[open] summary::after { content: '–'; }
+  .ivp-acc-body { padding: 0 0 1.2rem; font-size: .95rem; line-height: 1.7; color: rgba(29,29,31,.78); }
+  .ivp-acc-body p { margin: 0 0 .7rem; }
+  .ivp-acc-body ul { padding-left: 1.2rem; margin: 0 0 .7rem; }
+
+  /* ── FEATURE ── */
+  .ivp-feat { max-width: 1240px; margin: 1rem auto 0; padding: 0 1.25rem 3rem; display: grid; gap: 1.5rem; }
+  .ivp-feat-img { position: relative; border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, #f3e9d8, #e9d9bf); aspect-ratio: 1; }
+  .ivp-feat-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 1.2s ease; }
+  .ivp-feat-img img.is-on { opacity: 1; }
+  .ivp-feat-text h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.8rem, 5.5vw, 2.5rem); font-weight: 500; line-height: 1.12; margin: .3rem 0 .8rem; color: #1D1D1F !important; }
+  .ivp-feat-text p { color: rgba(29,29,31,.65); line-height: 1.65; margin: 0 0 1.4rem; }
+  .ivp-ghost { display: inline-flex; padding: .8rem 1.6rem; border: 1.5px solid #1D1D1F; border-radius: 50px; font-size: .66rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #1D1D1F; text-decoration: none; transition: all .2s; }
+  .ivp-ghost:hover { background: #1D1D1F; color: #fff; }
+
+  /* ── RELATERADE ── */
+  .ivp-rel { max-width: 1240px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+  .ivp-rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; margin-top: 1.2rem; }
+  .ivp-card { text-decoration: none; color: inherit; background: #f3ecdf; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 28px rgba(29,29,31,.14); transition: transform .3s, box-shadow .3s; display: block; }
+  .ivp-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(29,29,31,.12); }
+  .ivp-card-img { position: relative; aspect-ratio: 3/4; overflow: hidden; }
+  .ivp-card-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .45s, transform .5s; }
+  .ivp-card-hover { opacity: 0; }
+  .ivp-card:hover .ivp-card-hover { opacity: 1; }
+  .ivp-card:hover .ivp-card-main { opacity: 0; }
+  .ivp-card:hover .ivp-card-img img { transform: scale(1.04); }
+  .ivp-card b { display: block; font-size: .8rem; font-weight: 600; padding: .7rem .85rem 0; }
+  .ivp-card span { display: block; font-size: .76rem; color: rgba(29,29,31,.7); padding: .15rem .85rem .85rem; }
+
+  /* ── STICKY BAR (mobil) ── */
+  .ivp-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 900; background: rgba(250,246,240,.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid rgba(29,29,31,.1); padding: .65rem 1rem calc(.65rem + env(safe-area-inset-bottom, 0)); display: flex; align-items: center; gap: .8rem; transform: translateY(110%); transition: transform .3s ease; }
+  .ivp-sticky.is-visible { transform: translateY(0); }
+  .ivp-sticky-info { flex: 1; min-width: 0; }
+  .ivp-sticky-info b { display: block; font-size: .78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ivp-sticky-info span { font-size: .78rem; color: rgba(29,29,31,.7); }
+  .ivp-add--sticky { flex: 0 0 auto; justify-content: center; height: 44px; padding: 0 1.3rem; font-size: .64rem; }
+
+  /* ═══════════ TABLET+ ═══════════ */
+  @media (min-width: 640px) {
+    .ivp-crumbs, .ivp-buy, .ivp-feat, .ivp-rel { padding-left: 2rem; padding-right: 2rem; }
+    .ivp-rel-grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .ivp-card { border-radius: 16px; }
+  }
+
+  /* ═══════════ DESKTOP ═══════════ */
+  @media (min-width: 861px) {
+    .ivp-crumbs { padding: 1.5rem 2.5rem 0; }
+    .ivp-grid { grid-template-columns: 1.7fr 1fr; gap: 3rem; padding: 1.5rem 2.5rem 4rem; align-items: start; }
+    /* Holdit-stil: bilderna sida vid sida, inga tumnaglar */
+    .ivp-gallery { grid-template-columns: 1fr; position: sticky; top: 100px; }
+    .ivp-thumbs { display: none; }
+    .ivp-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; overflow: visible; }
+    .ivp-stage { padding: 0; }
+    .ivp-slide { flex: none; aspect-ratio: 3 / 4; border-radius: 18px; box-shadow: 0 4px 28px rgba(29,29,31,.14); transition: transform .35s ease, box-shadow .35s ease; }
+    .ivp-slide:hover { transform: translateY(-4px); box-shadow: 0 12px 34px rgba(29,29,31,.18); }
+    .ivp-dots { display: none; }
+    .ivp-fav { top: 1rem; right: 1rem; }
+    .ivp-slide:not(:first-child) .ivp-fav { display: none; }
+    .ivp-buy { padding: 0; }
+    .ivp-title { font-size: clamp(2rem, 2.6vw, 2.7rem); }
+    .ivp-feat { grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; padding: 1rem 2.5rem 5rem; }
+    .ivp-feat-img { border-radius: 24px; }
+    .ivp-rel { padding: 0 2.5rem 6rem; }
+    .ivp-sticky { display: none; }
+  }
+</style>
+
+<script>
+(function () {
+  var root = document.getElementById('ivp'); if (!root) return;
+  var variants = JSON.parse(document.getElementById('ivpVariants').textContent || '[]');
+  var money = function (cents) {
+    return (cents / 100).toLocaleString('sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr';
+  };
+
+  /* ── Galleri ── */
+  var stage = document.getElementById('ivpStage');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.ivp-thumb'));
+  var dots   = Array.prototype.slice.call(document.querySelectorAll('#ivpDots i'));
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.ivp-slide'));
+  function goTo(i) {
+    var s = slides[i]; if (!s) return;
+    stage.scrollTo({ left: s.offsetLeft, behavior: 'smooth' });
+    setActive(i);
+  }
+  function setActive(i) {
+    thumbs.forEach(function (t, k) { t.classList.toggle('is-active', k === i); });
+    dots.forEach(function (d, k) { d.classList.toggle('is-active', k === i); });
+  }
+  thumbs.forEach(function (t) { t.addEventListener('click', function () { goTo(+t.dataset.index); }); });
+  var scrollT;
+  stage && stage.addEventListener('scroll', function () {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(function () {
+      var vis = slides.filter(function(sl){ return sl.style.display !== 'none'; });
+      var w = vis[0] ? vis[0].getBoundingClientRect().width + 10 : stage.offsetWidth;
+      var i = Math.round(stage.scrollLeft / w); setActive(i);
+    }, 60);
+  }, { passive: true });
+
+  /* ── Varianter ── */
+  var form = document.getElementById('ivpForm');
+  var idInput = document.getElementById('ivpVariantId');
+  var addBtn = document.getElementById('ivpAdd');
+  var addText = addBtn && addBtn.querySelector('.ivp-add-text');
+  var addPrice = document.getElementById('ivpAddPrice');
+  var priceEl = document.getElementById('ivpPrice');
+  var compareEl = document.getElementById('ivpCompare');
+  var saveEl = document.getElementById('ivpSave');
+  var stickyPrice = document.getElementById('ivpStickyPrice');
+  var optionGroups = Array.prototype.slice.call(root.querySelectorAll('.ivp-opt[data-option-index]'));
+
+  function selectedOptions() {
+    return optionGroups.map(function (g) {
+      var sel = g.querySelector('select'); if (sel) return sel.value;
+      var c = g.querySelector('input:checked'); return c ? c.value : null;
+    });
+  }
+  function findVariant(opts) {
+    return variants.find(function (v) {
+      return opts.every(function (o, i) { return o === null || v.options[i] === o; });
+    });
+  }
+  function refreshChips() {
+    var opts = selectedOptions();
+    optionGroups.forEach(function (g, gi) {
+      g.querySelectorAll('.ivp-select option').forEach(function (opt) {
+        var test = opts.slice(); test[gi] = opt.value;
+        var v = findVariant(test);
+        var sold = !(v && v.available);
+        opt.classList.toggle('is-soldout', sold);
+        var base = opt.value;
+        opt.textContent = sold ? base + ' — slutsåld' : base;
+      });
+      g.querySelectorAll('.ivp-chip').forEach(function (chip) {
+        var val = chip.querySelector('input').value;
+        var test = opts.slice(); test[gi] = val;
+        var v = findVariant(test);
+        chip.classList.toggle('is-soldout', !(v && v.available));
+        chip.classList.toggle('is-active', chip.querySelector('input').checked);
+      });
+    });
+  }
+  function update() {
+    var v = findVariant(selectedOptions());
+    refreshChips();
+    if (!v) {
+      addBtn.disabled = true; addText.textContent = 'Ej tillgänglig'; toggleNotify(null); return;
+    }
+    idInput.value = v.id;
+    priceEl.textContent = money(v.price);
+    addPrice.textContent = money(v.price);
+    if (stickyPrice) stickyPrice.textContent = money(v.price);
+    if (v.compare_at_price && v.compare_at_price > v.price) {
+      compareEl.textContent = money(v.compare_at_price); compareEl.hidden = false;
+      saveEl.textContent = 'Spara ' + Math.round((1 - v.price / v.compare_at_price) * 100) + ' %'; saveEl.hidden = false;
+    } else { compareEl.hidden = true; saveEl.hidden = true; }
+    addBtn.disabled = !v.available;
+    addText.textContent = v.available ? 'Lägg i varukorg' : 'Slutsåld';
+    toggleNotify(v);
+    filterGallery(v);
+    /* Uppdatera URL */
+    try { var u = new URL(location.href); u.searchParams.set('variant', v.id); history.replaceState(null, '', u); } catch (e) {}
+  }
+  /* Visa bara bilder vars alt-text innehåller vald modell (t.ex. "iPhone 17 Pro"). Ingen träff = visa alla. */
+  function filterGallery(v) {
+    if (!slides.length) return;
+    var vals = (v && v.options ? v.options : []).map(function (o) { return String(o).toLowerCase().trim(); }).filter(Boolean);
+    var matches = [];
+    slides.forEach(function (sl) {
+      // alt-text kan innehålla flera modeller: "iPhone 17 Pro, iPhone 17 Pro Max"
+      var models = (sl.dataset.model || '').toLowerCase().split(/[,|\/;]/).map(function (x) { return x.trim(); }).filter(Boolean);
+      var hit = vals.some(function (val) { return models.indexOf(val) > -1; });
+      if (hit) matches.push(sl);
+    });
+    var show = matches.length ? matches : slides;
+    slides.forEach(function (sl) { sl.style.display = show.indexOf(sl) > -1 ? '' : 'none'; });
+    var i = 0; dots.forEach(function (d, k) { d.style.display = show.indexOf(slides[k]) > -1 ? '' : 'none'; });
+    if (stage) stage.scrollTo({ left: 0 });
+    setActive(slides.indexOf(show[0]));
+  }
+  /* ── Bevaka när slut (Notify Me!-blocket visas, köpknapp döljs) ── */
+  var nWrap = document.getElementById('ivpNotifyWrap'), nSticky = document.getElementById('ivpStickyNotify'),
+      ctaRow = document.getElementById('ivpCtaRow'), stickyAddBtn = document.getElementById('ivpStickyAdd');
+  function toggleNotify(v) {
+    var soldOut = !v || !v.available;
+    if (nWrap) nWrap.hidden = !soldOut;
+    if (ctaRow) ctaRow.classList.toggle('is-soldout', soldOut);
+    if (stickyAddBtn) stickyAddBtn.style.display = soldOut ? 'none' : '';
+    if (nSticky) nSticky.hidden = !soldOut;
+  }
+  nSticky && nSticky.addEventListener('click', function () {
+    if (!nWrap) return;
+    nWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var b = nWrap.querySelector('button, [role="button"]'); if (b) setTimeout(function () { b.click(); }, 400);
+  });
+
+  optionGroups.forEach(function (g) { g.addEventListener('change', update); });
+  if (optionGroups.length) { refreshChips(); filterGallery(findVariant(selectedOptions())); }
+  toggleNotify(findVariant(selectedOptions()));
+
+  /* ── Färgnamn från aktiv prick (om titeln inte matchade färgkartan) ── */
+  var cn = document.getElementById('ivpColorName'), act = root.querySelector('.ivp-swatch.is-active[data-name]');
+  if (cn && act) cn.textContent = act.dataset.name;
+
+  /* ── Antal ── */
+  var qty = document.getElementById('ivpQty');
+  root.querySelectorAll('.ivp-qty-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) + (+b.dataset.dir));
+    });
+  });
+
+  /* ── Lägg i korg (AJAX) ── */
+  var msg = document.getElementById('ivpAddedMsg');
+  function addToCart() {
+    if (addBtn.disabled) return;
+    addBtn.classList.add('is-loading');
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ id: parseInt(idInput.value, 10), quantity: parseInt(qty.value, 10) || 1 })
+    })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () {
+      addBtn.classList.remove('is-loading');
+      msg.hidden = false;
+      var t = addText.textContent; addText.textContent = '✓ Tillagd';
+      setTimeout(function () { addText.textContent = t; }, 1800);
+      fetch('/cart.js').then(function (r) { return r.json(); }).then(function (cart) {
+        document.querySelectorAll('.cart-count, [data-cart-count], .cart__count, [data-item-count]').forEach(function (el) {
+          el.textContent = cart.item_count; el.style.display = cart.item_count > 0 ? '' : 'none';
+        });
+        document.dispatchEvent(new CustomEvent('iva:cart:updated', { detail: cart }));
+      });
+    })
+    .catch(function () { addBtn.classList.remove('is-loading'); form.submit(); });
+  }
+  form.addEventListener('submit', function (e) { e.preventDefault(); addToCart(); });
+  var stickyAdd = document.getElementById('ivpStickyAdd');
+  stickyAdd && stickyAdd.addEventListener('click', addToCart);
+
+  /* ── Feature: bilderna tonar över var N:e sekund ── */
+  var fade = document.getElementById('ivpFeatFade');
+  if (fade) {
+    var imgs = Array.prototype.slice.call(fade.querySelectorAll('.ivp-fade'));
+    var cur = 0, iv = (parseFloat(fade.dataset.interval) || 5) * 1000;
+    if (imgs.length > 1) setInterval(function () {
+      imgs[cur].classList.remove('is-on');
+      cur = (cur + 1) % imgs.length;
+      imgs[cur].classList.add('is-on');
+    }, iv);
+  }
+
+  /* ── Sticky bar på mobil: visas när köpknappen scrollat ut ── */
+  var sticky = document.getElementById('ivpSticky');
+  var ctaRow = document.getElementById('ivpCtaRow');
+  if (sticky && ctaRow && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      var e = entries[0];
+      var below = e.boundingClientRect.top < 0;
+      sticky.classList.toggle('is-visible', !e.isIntersecting && below);
+      sticky.setAttribute('aria-hidden', e.isIntersecting ? 'true' : 'false');
+    }, { threshold: 0 }).observe(ctaRow);
+  }
+})();
+
+  /* ── Favoriter (sparas i webbläsaren) ── */
+  (function(){
+    var btns=Array.prototype.slice.call(document.querySelectorAll('.ivp-fav')); if(!btns.length) return; var btn=btns[0];
+    var KEY='iva_wishlist';
+    function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+    function save(list){ try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){} window.dispatchEvent(new CustomEvent('iva:wishlist')); }
+    var handle=btn.getAttribute('data-handle');
+    function render(){ var on=load().some(function(i){return i.handle===handle;}); btns.forEach(function(b){ b.classList.toggle('is-on',on); b.setAttribute('aria-pressed',on?'true':'false'); b.setAttribute('aria-label',on?'Ta bort från favoriter':'Spara som favorit'); }); }
+    var toast=document.createElement('div'); toast.className='ivp-fav-toast'; document.body.appendChild(toast); var tm;
+    toast.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); if(toast.getAttribute('data-href')) window.location.href=toast.getAttribute('data-href'); });
+    function show(msg,href){ toast.innerHTML=msg; if(href){toast.setAttribute('data-href',href);toast.style.cursor='pointer';}else{toast.removeAttribute('data-href');toast.style.cursor='default';} toast.classList.add('is-show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('is-show');},4500); }
+    btns.forEach(function(b){ b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation();
+      var list=load(), idx=-1; list.forEach(function(i,n){ if(i.handle===handle) idx=n; });
+      if(idx>-1){ list.splice(idx,1); save(list); render(); show('Borttagen från favoriter'); return; }
+      list.unshift({handle:handle,title:btn.getAttribute('data-title'),url:btn.getAttribute('data-url'),price:btn.getAttribute('data-price'),img:btn.getAttribute('data-img')});
+      save(list); render(); show('Sparad i favoriter <a href="/pages/favoriter">Visa →</a>','/pages/favoriter');
+    }); });
+    render();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Produktsida",
+  "settings": [
+    { "type": "header", "content": "Galleri" },
+    { "type": "number", "id": "skip_images", "label": "Hoppa över de första N bilderna", "info": "De transparenta bilderna (1–2) används på korten — hoppa över dem här", "default": 2 },
+    { "type": "number", "id": "max_images", "label": "Max antal bilder i galleriet", "info": "0 = visa alla återstående", "default": 0 },
+    { "type": "color", "id": "stage_bg", "label": "Bakgrund bakom bilderna", "default": "#ffffff" },
+
+    { "type": "header", "content": "Text ovanför titel" },
+    { "type": "text", "id": "eyebrow", "label": "Liten etikett", "default": "IVA Design" },
+    { "type": "textarea", "id": "lead", "label": "Kort säljtext (lämna tom = första raderna ur beskrivningen)" },
+
+
+    { "type": "header", "content": "Dragspel" },
+    { "type": "richtext", "id": "specs", "label": "Specifikationer", "default": "<p>Material: flytande silikon med mikrofiberfoder<br>MagSafe-kompatibel<br>Förhöjd kamerakant 1,2 mm</p>", "info": "Gäller alla produkter. Fyll i metafältet custom.specifikationer på produkten för egen text per produkt." },
+
+    { "type": "header", "content": "Bevaka när slut i lager" },
+    { "type": "checkbox", "id": "notify_enable", "label": "Visa bevakning (Notify Me!-block) när vald modell är slut", "default": true },
+    { "type": "text", "id": "notify_label", "label": "Knapptext i mobilens bottenrad", "default": "Meddela när varan finns tillgänglig" },
+    { "type": "paragraph", "content": "Lägg till Notify Me!-blocket: Lägg till block → Appar → Notify Me (Back in Stock)." },
+    { "type": "header", "content": "Betalning & leverans" },
+    { "type": "checkbox", "id": "trust_show", "label": "Visa betal- och fraktsätt", "default": true },
+    { "type": "text", "id": "trust_heading", "label": "Rubrik", "default": "Säker betalning & snabb leverans!" },
+    { "type": "text", "id": "trust_shipping", "label": "Fraktpartners (kommaseparerat)", "default": "PostNord", "info": "Betalsätten hämtas automatiskt från butikens aktiverade betalmetoder." },
+    { "type": "header", "content": "Feature-sektion" },
+    { "type": "range", "id": "feat_interval", "label": "Sekunder per bild", "min": 2, "max": 12, "step": 1, "default": 5 },
+    { "type": "text", "id": "feat_eyebrow", "label": "Liten etikett", "default": "Designat för vardagen" },
+    { "type": "textarea", "id": "feat_heading", "label": "Rubrik", "default": "Allt du behöver.\nInget du inte behöver." },
+    { "type": "textarea", "id": "feat_text", "label": "Text", "default": "Vi tog bort plånboken, nyckelknippan och tilltrasslade sladdar — och lät skalet göra jobbet. Perfekt passform. Klart." },
+    { "type": "url", "id": "feat_link", "label": "Knapp-länk" },
+    { "type": "text", "id": "feat_link_label", "label": "Knapp-text", "default": "Se hela kollektionen" }
+  ],
+  "blocks": [
+    { "type": "@app" },
+    {
+      "type": "color_group",
+      "name": "Färggrupp",
+      "settings": [
+        { "type": "paragraph", "content": "Samma upplägg som startsidans produktsektion: välj produkt + prickfärg för varje färg i gruppen." },
+        { "type": "header", "content": "Färg 1" },
+        { "type": "product", "id": "product_1", "label": "Produkt – Färg 1" },
+        { "type": "color",   "id": "color_1",   "label": "Prickfärg 1" },
+        { "type": "header", "content": "Färg 2" },
+        { "type": "product", "id": "product_2", "label": "Produkt – Färg 2" },
+        { "type": "color",   "id": "color_2",   "label": "Prickfärg 2" },
+        { "type": "header", "content": "Färg 3" },
+        { "type": "product", "id": "product_3", "label": "Produkt – Färg 3" },
+        { "type": "color",   "id": "color_3",   "label": "Prickfärg 3" },
+        { "type": "header", "content": "Färg 4" },
+        { "type": "product", "id": "product_4", "label": "Produkt – Färg 4" },
+        { "type": "color",   "id": "color_4",   "label": "Prickfärg 4" },
+        { "type": "header", "content": "Färg 5" },
+        { "type": "product", "id": "product_5", "label": "Produkt – Färg 5" },
+        { "type": "color",   "id": "color_5",   "label": "Prickfärg 5" },
+        { "type": "header", "content": "Färg 6" },
+        { "type": "product", "id": "product_6", "label": "Produkt – Färg 6" },
+        { "type": "color",   "id": "color_6",   "label": "Prickfärg 6" }
+      ]
+    },
+    {
+      "type": "feat_image",
+      "name": "Feature-bild",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Bild (kundbild / livsstil)" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "IVA Produktsida" }]
+}
+{% endschema %}

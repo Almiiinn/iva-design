@@ -1,0 +1,1258 @@
+{% comment %}
+  IVA Kollektionssida v5 — 4-kolumner, modell-dropdown, filterpanel, hjärta, hover-bild
+  Fil: sections/iva-kollektion.liquid
+{% endcomment %}
+
+{%- assign current_sort  = collection.sort_by | default: collection.default_sort_by -%}
+{%- assign model_blocks  = section.blocks | where: 'type', 'model_filter' -%}
+{%- assign filter_blocks = section.blocks | where: 'type', 'filter_tag' -%}
+
+<style>
+  /* ── Pixelgap ── */
+  .ivc-header,
+  .ivc-tags,
+  .ivc-toolbar,
+  .ivc-grid-wrap { margin-bottom: -2px; }
+
+  /* ── HEADER ── */
+  .ivc-header {
+    text-align: center;
+    padding: 5rem 1.5rem 3rem;
+    background: linear-gradient(180deg, #f9f3eb 0%, #f0e6d3 100%);
+  }
+  .ivc-header-label {
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #1D1D1F;
+    margin: 0 0 1rem;
+  }
+  .ivc-header-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -.5px;
+    color: #1D1D1F !important;
+    margin: 0 0 1rem;
+  }
+  .ivc-header-desc {
+    font-size: .95rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(29,29,31,0.55);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── KATEGORI-PILLS ── */
+  .ivc-tags {
+    background: #f0e6d3;
+    border-bottom: 1px solid rgba(29,29,31,0.1);
+  }
+  .ivc-tags-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    flex-wrap: wrap;
+  }
+  .ivc-tag-btn {
+    flex-shrink: 0;
+    display: inline-block;
+    text-decoration: none;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+    color: #1D1D1F;
+    padding: .78rem 1.6rem;
+    border: 1.5px solid rgba(29,29,31,0.3);
+    border-radius: 50px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(29,29,31,0.08);
+    transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+    white-space: nowrap;
+  }
+  .ivc-tag-btn:hover { border-color: #1D1D1F; box-shadow: 0 3px 10px rgba(29,29,31,0.15); }
+  .ivc-tag-btn--active { background: #1D1D1F; border-color: #1D1D1F; color: #f9f3eb; box-shadow: 0 3px 12px rgba(29,29,31,0.25); }
+  .ivc-tag-btn--active:hover { background: #1D1D1F; border-color: #1D1D1F; color: #f9f3eb; }
+
+  /* ── TOOLBAR ── */
+  .ivc-toolbar {
+    background: #f0e6d3;
+    border-top: 1px solid rgba(29,29,31,0.07);
+    border-bottom: 1px solid rgba(29,29,31,0.1);
+  }
+  .ivc-toolbar-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: .85rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .ivc-toolbar-left  { display: flex; align-items: flex-end; gap: 1rem; }
+  .ivc-toolbar-right { display: flex; align-items: center; gap: 1.5rem; flex-shrink: 0; }
+
+  /* Modell-dropdown */
+  .ivc-model-wrap { display: flex; flex-direction: column; gap: .2rem; }
+  .ivc-model-label {
+    font-size: .58rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.45);
+  }
+  .ivc-model-select-wrap { position: relative; display: flex; align-items: center; }
+  .ivc-model-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #ffffff;
+    border: 1px solid rgba(29,29,31,0.2);
+    border-radius: 8px;
+    padding: .5rem 2.4rem .5rem 1rem;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #1D1D1F;
+    cursor: pointer;
+    font-family: inherit;
+    min-width: 150px;
+    transition: border-color .2s ease;
+  }
+  .ivc-model-select:hover, .ivc-model-select:focus { border-color: rgba(29,29,31,0.5); outline: none; }
+  .ivc-model-chevron { position: absolute; right: .8rem; width: 12px; height: 12px; color: rgba(29,29,31,0.5); pointer-events: none; }
+
+  /* Filter-knapp (tre streck) */
+  .ivc-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: transparent;
+    border: 1px solid rgba(29,29,31,0.2);
+    border-radius: 8px;
+    padding: .5rem 1rem;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1D1D1F;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .2s ease, background .2s ease;
+    height: 37px;
+  }
+  .ivc-filter-btn svg { width: 15px; height: 15px; }
+  .ivc-filter-btn:hover { border-color: #1D1D1F; background: rgba(29,29,31,0.04); }
+
+  /* Sort-dropdown */
+  .ivc-toolbar-count {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.45);
+    white-space: nowrap;
+  }
+  .ivc-sort-wrap { display: flex; align-items: center; gap: .75rem; }
+  .ivc-sort-label {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.45);
+  }
+  .ivc-sort-select-wrap { position: relative; display: flex; align-items: center; }
+  .ivc-sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 1px solid rgba(29,29,31,0.2);
+    border-radius: 50px;
+    padding: .5rem 2.4rem .5rem 1.1rem;
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #1D1D1F;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .2s ease;
+  }
+  .ivc-sort-select:hover, .ivc-sort-select:focus { border-color: rgba(29,29,31,0.5); outline: none; }
+  .ivc-sort-chevron { position: absolute; right: .8rem; width: 12px; height: 12px; color: rgba(29,29,31,0.5); pointer-events: none; }
+
+  /* ── FILTER-PANEL ── */
+  .ivc-filter-panel {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 380px;
+    max-width: 90vw;
+    height: 100vh;
+    height: 100dvh;
+    background: #f9f3eb;
+    z-index: 10000;
+    transition: right .35s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+    box-shadow: -6px 0 40px rgba(29,29,31,0.14);
+    display: flex;
+    flex-direction: column;
+  }
+  .ivc-filter-panel.is-open { right: 0; }
+  .ivc-filter-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(29,29,31,0.38);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .ivc-filter-overlay.is-open { opacity: 1; pointer-events: all; }
+
+  .ivc-filter-panel-inner {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 2rem 1.75rem 1.5rem;
+  }
+  .ivc-filter-panel-footer {
+    flex-shrink: 0;
+    padding: 1rem 1.75rem calc(1rem + env(safe-area-inset-bottom, 0px));
+    background: #f9f3eb;
+    border-top: 1px solid rgba(29,29,31,0.08);
+  }
+  .ivc-filter-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(29,29,31,0.1);
+  }
+  .ivc-filter-panel-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #1D1D1F;
+    margin: 0;
+  }
+  .ivc-filter-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .4rem;
+    color: rgba(29,29,31,0.55);
+    transition: color .2s ease;
+  }
+  .ivc-filter-close svg { width: 22px; height: 22px; display: block; }
+  .ivc-filter-close:hover { color: #1D1D1F; }
+
+  .ivc-filter-section { margin-bottom: 2rem; }
+  .ivc-filter-section-title {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.45);
+    margin: 0 0 1rem;
+  }
+  .ivc-filter-options { display: flex; flex-direction: column; gap: .35rem; }
+
+  .ivc-filter-radio {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .65rem .9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 400;
+    color: rgba(29,29,31,0.7);
+    transition: background .15s ease, color .15s ease;
+  }
+  .ivc-filter-radio input[type="radio"] { display: none; }
+  .ivc-filter-radio::before {
+    content: '';
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid rgba(29,29,31,0.25);
+    border-radius: 50%;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .ivc-filter-radio:hover { background: rgba(29,29,31,0.04); color: #1D1D1F; }
+  .ivc-filter-radio.is-checked { color: #1D1D1F; font-weight: 600; }
+  .ivc-filter-radio.is-checked::before { border-color: #1D1D1F; background: #1D1D1F; box-shadow: inset 0 0 0 3px #f9f3eb; }
+
+  .ivc-filter-apply {
+    display: block;
+    width: 100%;
+    background: #1D1D1F;
+    color: #f9f3eb;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .2s ease;
+  }
+  .ivc-filter-apply:hover { opacity: .85; }
+
+  /* ── PANEL MODELL-DROPDOWN ── */
+  .ivc-panel-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .ivc-panel-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid rgba(29,29,31,0.18);
+    border-radius: 10px;
+    padding: .85rem 3rem .85rem 1.1rem;
+    font-size: .82rem;
+    font-weight: 400;
+    color: #1D1D1F;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .ivc-panel-select:hover,
+  .ivc-panel-select:focus {
+    border-color: #1D1D1F;
+    box-shadow: 0 2px 8px rgba(29,29,31,0.1);
+    outline: none;
+  }
+  .ivc-panel-select-chevron {
+    position: absolute;
+    right: 1rem;
+    width: 16px;
+    height: 16px;
+    color: rgba(29,29,31,0.45);
+    pointer-events: none;
+  }
+
+  /* ── FÄRG-SWATCHES ── */
+  .ivc-color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .5rem;
+  }
+  .ivc-color-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .45rem;
+    cursor: pointer;
+    padding: .6rem .25rem .5rem;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .ivc-color-swatch input[type="radio"] { display: none; }
+  .ivc-color-swatch:hover { background: rgba(29,29,31,0.05); }
+  .ivc-color-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid rgba(29,29,31,0.12);
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    flex-shrink: 0;
+  }
+  .ivc-color-swatch.is-checked .ivc-color-dot {
+    border: 2.5px solid #1D1D1F;
+    transform: scale(1.12);
+    box-shadow: 0 3px 10px rgba(29,29,31,0.22);
+  }
+  .ivc-color-name {
+    font-size: .54rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.5);
+    text-align: center;
+    line-height: 1.2;
+    transition: color .15s ease;
+  }
+  .ivc-color-swatch.is-checked .ivc-color-name { color: #1D1D1F; }
+
+  /* ── GRID ── */
+  .ivc-grid-wrap {
+    background: linear-gradient(180deg, #f0e6d3 0%, #f5edd9 40%, #f9f3eb 100%);
+    padding: 2rem 2rem 5rem;
+    min-height: 40vh;
+  }
+  .ivc-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  /* ── KORT ── */
+  .ivc-card {
+    display: flex;
+    flex-direction: column;
+    background: #f3ecdf;
+    border-radius: 16px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 4px 28px rgba(29,29,31,0.22);
+    transition: transform .35s ease, box-shadow .35s ease;
+  }
+  .ivc-card:hover { transform: translateY(-8px); box-shadow: 0 20px 48px rgba(29,29,31,0.12); }
+  .ivc-card-img-area { display: block; text-decoration: none; }
+  .ivc-card-title-link { display: block; text-decoration: none; }
+
+  .ivc-card-img-wrap {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #f3ecdf;
+  }
+  .ivc-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform .5s ease, opacity .45s ease;
+  }
+  .ivc-card:hover .ivc-card-img { transform: scale(1.04); }
+
+  /* ── HOVER-BILD: bild 2 tonar in ovanpå bild 1 ── */
+  .ivc-card-img--hover {
+    opacity: 0;
+    z-index: 1;
+  }
+  .ivc-card:hover .ivc-card-img--hover { opacity: 1; }
+  .ivc-card:hover .ivc-card-img--main  { opacity: 0; }
+  .ivc-card-img-placeholder { width: 100%; height: 100%; background: #e5dbd0; }
+
+  /* Badges */
+  .ivc-card-badges {
+    position: absolute;
+    top: .75rem;
+    left: .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    z-index: 2;
+  }
+  .ivc-badge {
+    font-size: .5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .25rem .55rem;
+    border-radius: 50px;
+  }
+  .ivc-badge--new { background: #1D1D1F; color: #f9f3eb; }
+  .ivc-badge--sale { background: #c0392b; color: #ffffff; }
+
+  /* Hjärta */
+  .ivc-fav-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(10px); background: #1D1D1F; color: #fff; font-size: .8rem; padding: .7rem 1.1rem; border-radius: 50px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 9999; white-space: nowrap; }
+  .ivc-fav-toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .ivc-fav-toast a { color: #fff; text-decoration: underline; margin-left: .4rem; }
+  .ivc-card-heart {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    transition: transform .2s ease;
+    padding: .25rem;
+  }
+  .ivc-card-heart svg { width: 24px; height: 24px; color: #1D1D1F; transition: fill .2s ease, stroke .2s ease; }
+  .ivc-card-heart:hover { transform: scale(1.15); }
+  .ivc-card-heart.is-liked svg { fill: #c0392b; stroke: #c0392b; }
+
+  /* Overlay */
+  .ivc-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(29,29,31,0.22);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1.25rem;
+    opacity: 0;
+    z-index: 2;
+    transition: opacity .3s ease;
+  }
+  .ivc-card:hover .ivc-card-overlay { opacity: 1; }
+  .ivc-card-cta {
+    background: #f3ecdf;
+    color: #1D1D1F;
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .65rem 1.5rem;
+    border-radius: 50px;
+  }
+
+  /* Info */
+  .ivc-card-info { padding: .9rem 1rem 1rem; border-top: 1px solid rgba(29,29,31,0.07); }
+  .ivc-card-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #1D1D1F;
+    margin: 0 0 .25rem;
+    letter-spacing: .1px;
+    line-height: 1.3;
+  }
+  .ivc-card-price-wrap { display: flex; gap: .45rem; align-items: baseline; margin-bottom: .1rem; }
+  .ivc-card-price { font-size: .8rem; font-weight: 500; color: rgba(29,29,31,0.75); }
+  .ivc-card-price--sale { color: #c0392b; font-weight: 600; }
+  .ivc-card-price--compare { text-decoration: line-through; color: rgba(29,29,31,0.35); font-size: .72rem; }
+  /* Modell-kompatibilitet */
+  .ivc-card-models {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    margin: .45rem 0 .55rem;
+  }
+  .ivc-card-model-tag {
+    font-size: .57rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.6);
+    background: rgba(29,29,31,0.08);
+    border-radius: 50px;
+    padding: .2rem .55rem;
+    white-space: nowrap;
+  }
+  .ivc-card-model-tag--more { background: transparent; border: 1px dashed rgba(29,29,31,0.3); }
+
+  .ivc-card-soldout {
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(29,29,31,0.35);
+    margin: .35rem 0 0;
+  }
+
+  /* ── KÖPKNAPP (identisk med ivpd-cart-btn) ── */
+  .ivc-add-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .75rem 1rem;
+    margin-top: .6rem;
+    background: rgba(29,29,31,0.06);
+    border: 1px solid rgba(29,29,31,0.10);
+    border-radius: 50px;
+    cursor: pointer;
+    color: #1D1D1F;
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .1px;
+    font-family: inherit;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .ivc-add-btn:hover {
+    background: #1D1D1F;
+    color: #FFFFFF;
+    border-color: #1D1D1F;
+  }
+  .ivc-add-label { flex: 1; }
+  .ivc-add-plus {
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1;
+    opacity: .7;
+  }
+  .ivc-add-btn:hover .ivc-add-plus { opacity: 1; }
+  .ivc-add-btn.is-loading { opacity: .5; pointer-events: none; }
+  .ivc-add-btn.is-added { background: #1D1D1F; color: #FFFFFF; border-color: #1D1D1F; }
+
+  /* Empty + Pagination */
+  .ivc-empty { text-align: center; padding: 5rem 0; font-size: 1rem; color: rgba(29,29,31,0.4); }
+  .ivc-pagination { display: flex; align-items: center; justify-content: center; gap: 2rem; padding: 3rem 0 0; }
+  .ivc-page-btn {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #1D1D1F;
+    padding: .8rem 2rem;
+    border: 1px solid rgba(29,29,31,0.15);
+    border-radius: 50px;
+    transition: background .2s ease, color .2s ease;
+  }
+  .ivc-page-btn:hover { background: #1D1D1F; color: #f9f3eb; }
+  .ivc-page-info { font-size: .7rem; color: rgba(29,29,31,0.4); letter-spacing: 1px; }
+
+  /* ── DESKTOP: tydligare "VÄLJ MODELL"-rubriker + mer luft uppifrån ── */
+  @media (min-width: 769px) {
+    .ivc-model-label {
+      color: #1D1D1F;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      opacity: 1;
+    }
+    .ivc-filter-section-title { color: rgba(29,29,31,0.80); }
+    .ivc-toolbar-inner        { padding-top: 1.8rem; padding-bottom: 1.5rem; }
+
+    /* Pills sträcker sig över hela bredden på desktop */
+    .ivc-tags-inner {
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .ivc-tag-btn {
+      flex: 1;
+      text-align: center;
+      font-size: .8rem;
+      padding: .9rem 1rem;
+    }
+  }
+
+  /* ── TABLET ── */
+  @media (max-width: 1100px) {
+    .ivc-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .ivc-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .ivc-grid-wrap { padding: 1.5rem 1.25rem 4rem; }
+    .ivc-header { padding: 4rem 1.5rem 2.5rem; }
+    .ivc-toolbar-inner { padding: .85rem 1.25rem; }
+    .ivc-tags-inner { padding: .85rem 1.25rem; }
+    .ivc-sort-label { display: none; }
+  }
+
+  /* ── KATEGORI-PILLS MOBIL: en rad, horisontell scroll ── */
+  @media (max-width: 768px) {
+    .ivc-tags { overflow: hidden; }
+    .ivc-tags-inner {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      max-width: 100%;
+      /* Extra padding-bottom döljer scrollbaren bakom föräldern */
+      padding-bottom: calc(.85rem + 4px);
+    }
+    .ivc-tags-inner::-webkit-scrollbar { display: none; }
+  }
+
+  /* ── KÖPKNAPP MOBIL: dölj text, centrera ikon ── */
+  @media (max-width: 768px) {
+    .ivc-add-label { display: none; }
+    .ivc-add-btn { justify-content: center; gap: .5rem; }
+  }
+
+  /* ── MOBIL ── */
+  @media (max-width: 540px) {
+    .ivc-header { padding: 3rem 1.25rem 2rem; }
+    .ivc-grid { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    .ivc-grid-wrap { padding: 1rem .75rem 3rem; }
+    .ivc-card { border-radius: 12px; }
+    .ivc-card-info { padding: .65rem .8rem .8rem; }
+    .ivc-card-title { font-size: .75rem; }
+    .ivc-card-price { font-size: .72rem; }
+    .ivc-card-overlay { display: none; }
+    .ivc-card-img--hover { display: none; }
+    .ivc-card:hover .ivc-card-img--main { opacity: 1; }
+    .ivc-toolbar-inner { padding: .75rem 1rem; flex-wrap: wrap; }
+    .ivc-toolbar-left { width: 100%; }
+    .ivc-toolbar-right { width: 100%; justify-content: space-between; }
+    .ivc-tags-inner { padding: .75rem 1rem; gap: .6rem; }
+    .ivc-tag-btn { font-size: .62rem; padding: .65rem 1.15rem; }
+    .ivc-model-select { min-width: 120px; }
+    .ivc-filter-btn span { display: none; }
+    .ivc-toolbar-count { font-size: .6rem; }
+  }
+</style>
+
+<!-- HEADER -->
+<section class="ivc-header">
+  <p class="ivc-header-label">Kollektion</p>
+  <h1 class="ivc-header-title">{{ collection.title }}</h1>
+  {%- if collection.description != blank -%}
+    <p class="ivc-header-desc">{{ collection.description }}</p>
+  {%- endif -%}
+</section>
+
+<!-- KATEGORI-PILLS -->
+{%- if filter_blocks.size > 0 -%}
+<div class="ivc-tags">
+  <div class="ivc-tags-inner">
+    <a href="{{ collection.url }}" class="ivc-tag-btn{% unless current_tags.size > 0 %} ivc-tag-btn--active{% endunless %}">Alla</a>
+    {%- for block in filter_blocks -%}
+      <a
+        href="{{ collection.url }}/{{ block.settings.tag | handle }}"
+        class="ivc-tag-btn{% if current_tags contains block.settings.tag %} ivc-tag-btn--active{% endif %}"
+        {{ block.shopify_attributes }}
+      >{{ block.settings.label }}</a>
+    {%- endfor -%}
+  </div>
+</div>
+{%- endif -%}
+
+<!-- TOOLBAR -->
+<div class="ivc-toolbar">
+  <div class="ivc-toolbar-inner">
+
+    <!-- VÄNSTER: modell-dropdown + filter-knapp -->
+    <div class="ivc-toolbar-left">
+
+      {%- if model_blocks.size > 0 -%}
+      <div class="ivc-model-wrap">
+        <label class="ivc-model-label" for="ivcModel">Välj modell</label>
+        <div class="ivc-model-select-wrap">
+          <select class="ivc-model-select" id="ivcModel" aria-label="Välj modell">
+            <option value="">Allt</option>
+            {%- for block in model_blocks -%}
+              {%- assign tag_handle = block.settings.tag | handle -%}
+              <option value="{{ tag_handle }}"{% if current_tags contains tag_handle or current_tags contains block.settings.tag %} selected{% endif %}>
+                {{ block.settings.label }}
+              </option>
+            {%- endfor -%}
+          </select>
+          <svg class="ivc-model-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+      {%- endif -%}
+
+      <button class="ivc-filter-btn" id="ivcFilterBtn" aria-label="Öppna filter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <span>Filter</span>
+      </button>
+    </div>
+
+    <div class="ivc-toolbar-right"></div>
+
+  </div>
+</div>
+
+<!-- FILTER-PANEL (slide-in drawer) -->
+<div class="ivc-filter-panel" id="ivcFilterPanel" aria-hidden="true">
+  <div class="ivc-filter-panel-inner">
+
+    <div class="ivc-filter-panel-head">
+      <h2 class="ivc-filter-panel-title">Filter &amp; sortera</h2>
+      <button class="ivc-filter-close" id="ivcFilterClose" aria-label="Stäng filter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    {%- if model_blocks.size > 0 -%}
+    <div class="ivc-filter-section">
+      <p class="ivc-filter-section-title">Välj modell</p>
+      <div class="ivc-panel-select-wrap">
+        <select class="ivc-panel-select" id="ivcPanelModel" aria-label="Välj modell">
+          <option value="">Allt</option>
+          {%- for block in model_blocks -%}
+            {%- assign tag_handle = block.settings.tag | handle -%}
+            <option value="{{ tag_handle }}"{% if current_tags contains tag_handle or current_tags contains block.settings.tag %} selected{% endif %}>
+              {{ block.settings.label }}
+            </option>
+          {%- endfor -%}
+        </select>
+        <svg class="ivc-panel-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+    {%- endif -%}
+
+    <div class="ivc-filter-section">
+      <p class="ivc-filter-section-title">Färg</p>
+      <div class="ivc-color-grid">
+        {%- assign ivc_colors = "svart:#212123:Svart|orange:#DC591B:Orange|vinrod:#772A36:Vinröd|bordeauxrosa:#A02659:Bordeaux Rosa|dustyrose:#BD9092:Dusty Rose|lavendelbla:#6C6E9A:Lavendelblå|beige:#C4B09A:Beige|lila:#C59FE8:Lila|morkbla:#1E3A5F:Mörkblå|ljussalvia:#9FA79E:Ljus salvia|salviagron:#9BA5A2:Salvia grön|mintgron:#BDC9A8:Mintgrön|gra:#6A6A6A:Grå|ljusgra:#8E8E8E:Ljusgrå|ivory:#E8D8B8:Ivory|pastellrosa:#EFC8D4:Pastellrosa|magenta:#A5255F:Magenta|djuprosa:#E83473:Djup rosa" | split: "|" -%}
+        {%- for ivc_c in ivc_colors -%}
+          {%- assign ivc_parts = ivc_c | split: ":" -%}
+          {%- assign ivc_tag   = ivc_parts[0] -%}
+          {%- assign ivc_hex   = ivc_parts[1] -%}
+          {%- assign ivc_name  = ivc_parts[2] -%}
+          <label class="ivc-color-swatch{% if current_tags contains ivc_tag %} is-checked{% endif %}">
+            <input type="radio" name="panelColor" value="{{ ivc_tag }}"{% if current_tags contains ivc_tag %} checked{% endif %}>
+            <span class="ivc-color-dot" style="background:{{ ivc_hex }};"></span>
+            <span class="ivc-color-name">{{ ivc_name }}</span>
+          </label>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="ivc-filter-section">
+      <p class="ivc-filter-section-title">Sortering</p>
+      <div class="ivc-filter-options">
+        <label class="ivc-filter-radio{% if current_sort == 'created-descending' %} is-checked{% endif %}">
+          <input type="radio" name="panelSort" value="created-descending"{% if current_sort == 'created-descending' %} checked{% endif %}>
+          <span>Nyast</span>
+        </label>
+        <label class="ivc-filter-radio{% if current_sort == 'price-ascending' %} is-checked{% endif %}">
+          <input type="radio" name="panelSort" value="price-ascending"{% if current_sort == 'price-ascending' %} checked{% endif %}>
+          <span>Pris: Lägst</span>
+        </label>
+        <label class="ivc-filter-radio{% if current_sort == 'price-descending' %} is-checked{% endif %}">
+          <input type="radio" name="panelSort" value="price-descending"{% if current_sort == 'price-descending' %} checked{% endif %}>
+          <span>Pris: Högst</span>
+        </label>
+        <label class="ivc-filter-radio{% if current_sort == 'title-ascending' %} is-checked{% endif %}">
+          <input type="radio" name="panelSort" value="title-ascending"{% if current_sort == 'title-ascending' %} checked{% endif %}>
+          <span>Namn: A–Z</span>
+        </label>
+        <label class="ivc-filter-radio{% if current_sort == 'title-descending' %} is-checked{% endif %}">
+          <input type="radio" name="panelSort" value="title-descending"{% if current_sort == 'title-descending' %} checked{% endif %}>
+          <span>Namn: Z–A</span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+  <div class="ivc-filter-panel-footer">
+    <button class="ivc-filter-apply" id="ivcFilterApply">Visa resultat</button>
+  </div>
+</div>
+<div class="ivc-filter-overlay" id="ivcFilterOverlay"></div>
+
+<!-- PRODUKTGRID -->
+<section class="ivc-grid-wrap">
+  {%- paginate collection.products by 20 -%}
+
+    {%- if collection.products_count == 0 -%}
+      <p class="ivc-empty">Inga produkter hittades i den här kollektionen.</p>
+    {%- else -%}
+      <div class="ivc-grid">
+        {%- for product in collection.products -%}
+          <div class="ivc-card">
+
+            <a class="ivc-card-img-area" href="{{ product.url }}">
+              <div class="ivc-card-img-wrap">
+                {%- if product.featured_image != blank -%}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                    class="ivc-card-img ivc-card-img--main"
+                    loading="lazy"
+                    width="600"
+                    height="{{ 600 | divided_by: product.featured_image.aspect_ratio | round }}"
+                  >
+                  {%- comment -%} Bild 2 = hover-bild (visas bara om produkten har minst två bilder) {%- endcomment -%}
+                  {%- if product.images.size > 1 -%}
+                    {%- assign hover_img = product.images[1] -%}
+                    <img
+                      src="{{ hover_img | image_url: width: 600 }}"
+                      alt=""
+                      class="ivc-card-img ivc-card-img--hover"
+                      loading="lazy"
+                      aria-hidden="true"
+                      width="600"
+                      height="{{ 600 | divided_by: hover_img.aspect_ratio | round }}"
+                    >
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="ivc-card-img-placeholder"></div>
+                {%- endif -%}
+
+                <!-- BADGES -->
+                <div class="ivc-card-badges">
+                  {%- if product.tags contains 'nyhet' or product.tags contains 'Nyhet' or product.tags contains 'NEW' -%}
+                    <span class="ivc-badge ivc-badge--new">NYHET</span>
+                  {%- endif -%}
+                  {%- if product.compare_at_price > product.price -%}
+                    <span class="ivc-badge ivc-badge--sale">REA</span>
+                  {%- endif -%}
+                </div>
+
+                <!-- HJÄRTA -->
+                <button type="button" class="ivc-card-heart" aria-label="Spara som favorit" aria-pressed="false"
+                  data-handle="{{ product.handle }}" data-title="{{ product.title | escape }}" data-url="{{ product.url }}"
+                  data-price="{{ product.price | money }}" data-img="{{ product.featured_image | image_url: width: 500 }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
+
+                <!-- HOVER OVERLAY -->
+                <div class="ivc-card-overlay" aria-hidden="true">
+                  <span class="ivc-card-cta">Se produkt →</span>
+                </div>
+              </div>
+            </a>
+
+            <div class="ivc-card-info">
+              <a class="ivc-card-title-link" href="{{ product.url }}">
+                <p class="ivc-card-title">{{ product.title }}</p>
+              </a>
+              <div class="ivc-card-price-wrap">
+                {%- if product.compare_at_price > product.price -%}
+                  <span class="ivc-card-price ivc-card-price--sale">{{ product.price | money }}</span>
+                  <span class="ivc-card-price ivc-card-price--compare">{{ product.compare_at_price | money }}</span>
+                {%- else -%}
+                  <span class="ivc-card-price">{{ product.price | money }}</span>
+                {%- endif -%}
+              </div>
+              {%- assign has_models = false -%}
+              {%- for tag in product.tags -%}
+                {%- if tag contains 'iphone-' -%}{%- assign has_models = true -%}{%- endif -%}
+              {%- endfor -%}
+              {%- if has_models -%}
+                {%- assign model_count = 0 -%}
+                {%- for tag in product.tags -%}{%- if tag contains 'iphone-' -%}{%- assign model_count = model_count | plus: 1 -%}{%- endif -%}{%- endfor -%}
+                <div class="ivc-card-models">
+                  {%- assign shown = 0 -%}
+                  {%- for tag in product.tags -%}
+                    {%- if tag contains 'iphone-' and shown < 3 -%}
+                      {%- assign shown = shown | plus: 1 -%}
+                      {%- assign model_label = tag | replace: 'iphone-', 'iPhone ' | replace: '-pro-max', ' Pro Max' | replace: '-pro', ' Pro' | replace: '-plus', ' Plus' | replace: '-', ' ' -%}
+                      <span class="ivc-card-model-tag">{{ model_label }}</span>
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- if model_count > 3 -%}
+                    <span class="ivc-card-model-tag ivc-card-model-tag--more">+{{ model_count | minus: 3 }} till</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+              {%- if product.available -%}
+                {%- if product.variants.size == 1 -%}
+                  <button
+                    class="ivc-add-btn"
+                    data-variant-id="{{ product.first_available_variant.id }}"
+                    data-link="{{ product.url }}"
+                    aria-label="Lägg {{ product.title }} i varukorg"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                      <line x1="3" y1="6" x2="21" y2="6"/>
+                      <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                    <span class="ivc-add-label">Lägg i korg</span>
+                    <span class="ivc-add-plus">+</span>
+                  </button>
+                {%- else -%}
+                  <a class="ivc-add-btn" href="{{ product.url }}" aria-label="Välj modell – {{ product.title | escape }}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="6" y="2" width="12" height="20" rx="3"/>
+                      <line x1="10" y1="18" x2="14" y2="18"/>
+                    </svg>
+                    <span class="ivc-add-label">Välj modell</span>
+                    <span class="ivc-add-plus">→</span>
+                  </a>
+                {%- endif -%}
+              {%- else -%}
+                <p class="ivc-card-soldout">Slutsåld</p>
+              {%- endif -%}
+            </div>
+
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <div class="ivc-pagination">
+          {%- if paginate.previous -%}
+            <a class="ivc-page-btn" href="{{ paginate.previous.url }}">← Föregående</a>
+          {%- endif -%}
+          <span class="ivc-page-info">Sida {{ paginate.current_page }} av {{ paginate.pages }}</span>
+          {%- if paginate.next -%}
+            <a class="ivc-page-btn" href="{{ paginate.next.url }}">Nästa →</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+    {%- endif -%}
+
+  {%- endpaginate -%}
+</section>
+
+{%- if section.settings.note_show and section.settings.note_text != blank -%}
+<div class="ivc-note" id="ivcNote" role="note">
+  <span class="ivc-note-dot" aria-hidden="true"></span>
+  <span class="ivc-note-txt">{{ section.settings.note_text }}</span>
+  <button type="button" class="ivc-note-x" id="ivcNoteX" aria-label="Stäng">&times;</button>
+</div>
+<style>
+  .ivc-note{position:fixed;left:1.4rem;bottom:1.4rem;z-index:900;display:flex;align-items:center;gap:.8rem;max-width:360px;padding:1.05rem 1.3rem 1.05rem 1.2rem;background:#fffdf9;border:1px solid rgba(29,29,31,.1);border-radius:32px;box-shadow:0 10px 30px rgba(0,0,0,.12);font-size:.9rem;line-height:1.45;color:#1D1D1F;animation:ivcNoteIn .5s ease both}
+  .ivc-note-dot{flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:#1C2B3A}
+  .ivc-note-x{flex:0 0 auto;background:none;border:none;font-size:1.2rem;line-height:1;color:rgba(29,29,31,.45);cursor:pointer;padding:0 0 0 .2rem}
+  .ivc-note-x:hover{color:#1D1D1F}
+  .ivc-note.is-hidden{display:none}
+  @keyframes ivcNoteIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (max-width:720px){.ivc-note{left:1rem;right:1rem;bottom:.9rem;max-width:none;font-size:.74rem;padding:.65rem .85rem}}
+</style>
+<script>
+  (function(){var n=document.getElementById('ivcNote'),x=document.getElementById('ivcNoteX');if(!n||!x)return;
+  try{if(sessionStorage.getItem('ivcNoteHidden')==='1'){n.classList.add('is-hidden');}}catch(e){}
+  x.addEventListener('click',function(){n.classList.add('is-hidden');try{sessionStorage.setItem('ivcNoteHidden','1');}catch(e){}});})();
+</script>
+{%- endif -%}
+
+<script>
+  (function () {
+
+    /* ── SORT-DROPDOWN ── */
+    var sortSel = document.getElementById('ivcSort');
+    if (sortSel) {
+      sortSel.addEventListener('change', function () {
+        var url = new URL(window.location.href);
+        url.searchParams.set('sort_by', this.value);
+        window.location.href = url.toString();
+      });
+    }
+
+    /* ── MODELL-DROPDOWN ── */
+    var modelSel = document.getElementById('ivcModel');
+    if (modelSel) {
+      modelSel.addEventListener('change', function () {
+        var tag  = this.value;
+        var base = '{{ collection.url }}';
+        var url  = new URL(window.location.href);
+        var sort = url.searchParams.get('sort_by');
+        var dest = tag ? base + '/' + tag : base;
+        if (sort) dest += '?sort_by=' + sort;
+        window.location.href = dest;
+      });
+    }
+
+    /* ── FILTER-PANEL ── */
+    var panel   = document.getElementById('ivcFilterPanel');
+    var overlay = document.getElementById('ivcFilterOverlay');
+    var openBtn = document.getElementById('ivcFilterBtn');
+    var closeBtn= document.getElementById('ivcFilterClose');
+    var applyBtn= document.getElementById('ivcFilterApply');
+
+    function openPanel() {
+      if (!panel) return;
+      panel.classList.add('is-open');
+      overlay.classList.add('is-open');
+      panel.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePanel() {
+      if (!panel) return;
+      panel.classList.remove('is-open');
+      overlay.classList.remove('is-open');
+      panel.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    if (openBtn)  openBtn.addEventListener('click', openPanel);
+    if (closeBtn) closeBtn.addEventListener('click', closePanel);
+    if (overlay)  overlay.addEventListener('click', closePanel);
+
+    /* Synka radio-stil vid klick (modell + sortering) */
+    document.querySelectorAll('.ivc-filter-radio input').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        var group = document.querySelectorAll('input[name="' + inp.name + '"]');
+        group.forEach(function (g) { g.closest('.ivc-filter-radio').classList.remove('is-checked'); });
+        inp.closest('.ivc-filter-radio').classList.add('is-checked');
+      });
+    });
+
+    /* Synka färg-swatch stil vid klick */
+    document.querySelectorAll('.ivc-color-swatch input').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        document.querySelectorAll('.ivc-color-swatch').forEach(function (s) {
+          s.classList.remove('is-checked');
+        });
+        inp.closest('.ivc-color-swatch').classList.add('is-checked');
+      });
+    });
+
+    /* Applicera filter från panelen */
+    if (applyBtn) {
+      applyBtn.addEventListener('click', function () {
+        var modelSel  = document.getElementById('ivcPanelModel');
+        var colorR    = document.querySelector('input[name="panelColor"]:checked');
+        var sortR     = document.querySelector('input[name="panelSort"]:checked');
+        var modelTag  = modelSel ? modelSel.value : '';
+        var colorTag  = colorR ? colorR.value : '';
+        var sort      = sortR  ? sortR.value  : 'manual';
+        var base      = '{{ collection.url }}';
+        var tag       = '';
+        if (modelTag && colorTag) tag = modelTag + '+' + colorTag;
+        else if (modelTag) tag = modelTag;
+        else if (colorTag) tag = colorTag;
+        var dest = tag ? base + '/' + tag : base;
+        dest += '?sort_by=' + sort;
+        window.location.href = dest;
+      });
+    }
+
+    /* ── LÄGG I KORG ── */
+    var IVC_BTN_DEFAULT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="ivc-add-label">Lägg i korg</span><span class="ivc-add-plus">+</span>';
+    var IVC_BTN_ADDED   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="ivc-add-label">Tillagd!</span>';
+
+    document.querySelectorAll('.ivc-add-btn[data-variant-id]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var variantId = btn.getAttribute('data-variant-id');
+        var link      = btn.getAttribute('data-link');
+        if (!variantId || btn.classList.contains('is-loading')) return;
+
+        btn.classList.add('is-loading');
+
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ id: parseInt(variantId, 10), quantity: 1 })
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error('fail');
+          return r.json();
+        })
+        .then(function () {
+          btn.classList.remove('is-loading');
+          btn.classList.add('is-added');
+          btn.innerHTML = IVC_BTN_ADDED;
+
+          fetch('/cart.js')
+            .then(function (r) { return r.json(); })
+            .then(function (cart) {
+              document.querySelectorAll('.cart-count, [data-cart-count], [data-item-count]').forEach(function (el) {
+                el.textContent = cart.item_count;
+                el.style.display = cart.item_count > 0 ? '' : 'none';
+              });
+            });
+
+          setTimeout(function () {
+            btn.classList.remove('is-added');
+            btn.innerHTML = IVC_BTN_DEFAULT;
+          }, 2000);
+        })
+        .catch(function () {
+          btn.classList.remove('is-loading');
+          if (link && link !== '#') window.location.href = link;
+        });
+      });
+    });
+
+    /* ── HJÄRTAN (samma favoritlista som produktsidan: iva_wishlist) ── */
+    (function () {
+      var KEY = 'iva_wishlist';
+      function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+      function save(l) { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} window.dispatchEvent(new CustomEvent('iva:wishlist')); }
+      var toast = document.createElement('div'); toast.className = 'ivc-fav-toast'; document.body.appendChild(toast); var tm;
+      toast.addEventListener('click', function () { if (toast.getAttribute('data-href')) window.location.href = toast.getAttribute('data-href'); });
+      function show(msg, href) {
+        toast.innerHTML = msg;
+        if (href) { toast.setAttribute('data-href', href); toast.style.cursor = 'pointer'; } else { toast.removeAttribute('data-href'); toast.style.cursor = 'default'; }
+        toast.classList.add('is-show'); clearTimeout(tm); tm = setTimeout(function () { toast.classList.remove('is-show'); }, 4500);
+      }
+      var btns = Array.prototype.slice.call(document.querySelectorAll('.ivc-card-heart'));
+      function render() {
+        var list = load();
+        btns.forEach(function (b) {
+          var on = list.some(function (i) { return i.handle === b.getAttribute('data-handle'); });
+          b.classList.toggle('is-liked', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          var h = btn.getAttribute('data-handle'), list = load(), idx = -1;
+          list.forEach(function (i, n) { if (i.handle === h) idx = n; });
+          if (idx > -1) { list.splice(idx, 1); save(list); render(); show('Borttagen från favoriter'); return; }
+          list.unshift({ handle: h, title: btn.getAttribute('data-title'), url: btn.getAttribute('data-url'), price: btn.getAttribute('data-price'), img: btn.getAttribute('data-img') });
+          save(list); render(); show('Sparad i favoriter <a href="/pages/favoriter">Visa →</a>', '/pages/favoriter');
+        });
+      });
+      render();
+      window.addEventListener('storage', render);
+      window.addEventListener('iva:wishlist', render);
+    })();
+
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Kollektion",
+  "settings": [
+    { "type": "header", "content": "Flytande etikett" },
+    { "type": "checkbox", "id": "note_show", "label": "Visa etiketten", "default": true },
+    { "type": "text", "id": "note_text", "label": "Text", "default": "Passar utvalda iPhone-modeller – filtrera på din modell så ser du vad som finns." }
+  ],
+  "blocks": [
+    {
+      "type": "filter_tag",
+      "name": "Filterkategori",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Knapptext",
+          "info": "Texten som visas på pill-knappen",
+          "default": "Silikonskal"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Shopify-tagg",
+          "info": "Måste matcha exakt med taggen på produkterna",
+          "default": "silikonskal"
+        }
+      ]
+    },
+    {
+      "type": "model_filter",
+      "name": "Modellfilter",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Modellnamn",
+          "info": "Visas i 'Välj modell'-dropdown och filterpanel",
+          "default": "iPhone 17 Pro"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Shopify-tagg",
+          "info": "Måste matcha exakt med taggen på produkterna",
+          "default": "iphone-17-pro"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Kollektion"
+    }
+  ]
+}
+{% endschema %}

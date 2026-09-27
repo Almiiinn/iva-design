@@ -1,0 +1,407 @@
+{% comment %}
+  IVA Hero v3 — "Mer än ett mobilskal"
+  Ljus hero: rubrik + roterande highlights till vänster, produktbild till höger.
+  En CTA-knapp till kollektionssidan. Inga callouts, ingen varukorg.
+{% endcomment %}
+
+{%- assign highlight_blocks = section.blocks | where: 'type', 'highlight' -%}
+
+<section class="ivh{% if section.settings.image_mobile != blank %} ivh--has-mobile{% endif %}" id="ivh">
+  <div class="ivh-inner">
+
+    <!-- VÄNSTER -->
+    <div class="ivh-left">
+
+      <p class="ivh-brand">IVA.</p>
+      <h1 class="ivh-title">{{ section.settings.heading | newline_to_br }}</h1>
+
+      {%- assign has_highlights = false -%}
+      {%- for block in highlight_blocks -%}
+        {%- if block.settings.tag != blank and block.settings.description != blank -%}
+          {%- assign has_highlights = true -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if has_highlights -%}
+        {%- assign first_tag = '' -%}
+        {%- for block in highlight_blocks -%}
+          {%- if block.settings.tag != blank and block.settings.description != blank and first_tag == '' -%}
+            {%- assign first_tag = block.settings.tag -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        <div class="ivh-tag-wrap">
+          <span class="ivh-line"></span>
+          <p class="ivh-tag" id="ivhTag">{{ first_tag }}</p>
+        </div>
+
+        <div class="ivh-desc-rotator" id="ivhDescRotator">
+          {%- assign slide_index = 0 -%}
+          {%- for block in highlight_blocks -%}
+            {%- if block.settings.tag != blank and block.settings.description != blank -%}
+              <p class="ivh-desc-slide{% if slide_index == 0 %} is-active{% endif %}"
+                 data-tag="{{ block.settings.tag | escape }}"
+                 {{ block.shopify_attributes }}>
+                {{ block.settings.description }}
+              </p>
+              {%- assign slide_index = slide_index | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- elsif section.settings.description != blank -%}
+        <p class="ivh-desc">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      <a href="{{ section.settings.button_link | default: '/collections/produkter' }}" class="ivh-btn">
+        {{ section.settings.button_label | default: 'Se kollektioner' }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+
+    </div>
+
+    <!-- HÖGER: bild -->
+    <div class="ivh-right">
+      <div class="ivh-img-wrap">
+        {%- if section.settings.image != blank -%}
+          <picture>
+            {%- if section.settings.image_mobile != blank -%}
+              <source
+                media="(max-width: 600px)"
+                srcset="{{ section.settings.image_mobile | image_url: width: 1200 }}"
+              >
+            {%- endif -%}
+            <img
+              src="{{ section.settings.image | image_url: width: 2000 }}"
+              alt="{{ section.settings.heading | escape }}"
+              class="ivh-img"
+              loading="eager"
+              width="2000"
+              height="{{ 2000 | divided_by: section.settings.image.aspect_ratio | round }}"
+            >
+          </picture>
+        {%- else -%}
+          <div class="ivh-img-placeholder"></div>
+        {%- endif -%}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* ── SEKTION: fyller exakt kvarvarande höjd under navbaren ── */
+  .ivh {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: -2px;
+    background: #d4b896;
+    /* Sätts dynamiskt av JS nedan — fallback tills JS kört */
+    height: calc(100vh - 100px);
+  }
+
+  /* ── INNER: fyller hela sektionen ── */
+  .ivh-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ivh-inner::after { display: none; }
+
+  /* ── BILD: täcker hela sektionsytan ── */
+  .ivh-right {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .ivh-img-wrap {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ivh-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 45%;
+    display: block;
+  }
+
+  .ivh-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(29,29,31,0.04);
+  }
+
+  /* ── TEXT: nedre vänster, absolut ovanpå bilden ── */
+  .ivh-left {
+    position: absolute;
+    bottom: 0;
+    left: 3.5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding-bottom: 1rem;
+  }
+
+  .ivh-brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: rgba(29,29,31,0.55);
+    margin: 0 0 .35rem;
+    text-transform: uppercase;
+  }
+
+  .ivh-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.9rem, 2.4vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -.3px;
+    color: #1D1D1F;
+    margin: 0 0 1.25rem;
+    white-space: nowrap;
+  }
+
+  /* Highlights (dolda på desktop — ingen plats i botten-layouten) */
+  .ivh-tag-wrap { display: none; }
+  .ivh-desc-rotator { display: none; }
+  .ivh-desc { display: none; }
+
+  /* ── KNAPP ── */
+  .ivh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: #1D1D1F;
+    color: #FFFFFF;
+    border: 1.5px solid #1D1D1F;
+    padding: .75rem 1.6rem;
+    font-size: .65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: background .25s ease, transform .2s ease, box-shadow .2s ease;
+    white-space: nowrap;
+  }
+  .ivh-btn:hover {
+    background: #000;
+    border-color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  }
+  .ivh-btn svg { flex-shrink: 0; width: 12px; height: 12px; }
+
+  /* ── STOR DESKTOP ── */
+  @media (min-width: 1200px) {
+    .ivh-left { left: 4.5rem; padding-bottom: 1rem; }
+    .ivh-title { font-size: clamp(2rem, 2.5vw, 3rem); }
+  }
+
+  @media (max-width: 1100px) {
+    .ivh-left { left: 3rem; padding-bottom: 2rem; }
+  }
+
+  /* ── TABLET (860px) ── */
+  @media (max-width: 860px) {
+    .ivh { height: 100vh; }
+    .ivh-left {
+      left: 2rem;
+      padding-bottom: 1.75rem;
+    }
+    .ivh-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      white-space: normal;
+      margin-bottom: 1rem;
+    }
+  }
+
+  /* ── MOBIL (600px) ── */
+  @media (max-width: 600px) {
+
+    /* ════ LÄGE A: INGEN mobilbild → redaktionell staplad layout ════
+       Bild full bredd, textblock i sajtens cremefärg (samma som header
+       och "Våra produkter") — ett medvetet snitt, ingen skarv. */
+    .ivh:not(.ivh--has-mobile) {
+      height: auto !important;
+      background: #faf6f0;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-right {
+      position: relative;
+      inset: auto;
+      order: 1;
+      width: 100%;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 80vw;
+      overflow: hidden;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-img {
+      object-fit: cover;
+      object-position: 42% 40%;
+    }
+    /* Mjuk fade: bilden tonar över i cremefärgen — inga hårda kanter */
+    .ivh:not(.ivh--has-mobile) .ivh-img-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 45%;
+      background: linear-gradient(
+        to bottom,
+        rgba(250,246,240,0)   0%,
+        rgba(250,246,240,.55) 55%,
+        #faf6f0               100%
+      );
+      pointer-events: none;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-left {
+      position: static;
+      order: 2;
+      margin-top: -3.5rem;   /* texten kliver upp i faden */
+      padding: 0 1.5rem 2.25rem;
+      background: transparent;
+    }
+    .ivh:not(.ivh--has-mobile) .ivh-title {
+      font-size: clamp(1.7rem, 8vw, 2.1rem);
+      margin-bottom: 1.1rem;
+    }
+
+    /* ════ LÄGE B: mobilbild finns → stående hero, text ovanpå nere till vänster ════ */
+    .ivh--has-mobile {
+      height: 108vw !important;
+      background: #d2b48c;
+    }
+    .ivh--has-mobile .ivh-img {
+      object-fit: cover;
+      object-position: center top;
+    }
+    .ivh--has-mobile .ivh-left {
+      left: 1.5rem;
+      right: 1.5rem;
+      padding-bottom: 1.25rem;
+    }
+    .ivh--has-mobile .ivh-title {
+      font-size: clamp(1.4rem, 6.5vw, 1.7rem);
+    }
+
+    /* ── Gemensam typografi ── */
+    .ivh-brand {
+      font-size: .7rem;
+      letter-spacing: 3px;
+      margin-bottom: .3rem;
+      color: rgba(29,29,31,0.65);
+    }
+
+    .ivh-title {
+      font-size: clamp(1.5rem, 7vw, 1.9rem);
+      font-weight: 500;
+      white-space: normal;
+      margin: 0 0 .9rem;
+    }
+
+    .ivh-btn {
+      padding: .7rem 1.4rem;
+      font-size: .62rem;
+    }
+  }
+
+  /* Extra smal (iPhone SE, 320px) */
+  @media (max-width: 339px) {
+    .ivh-title { font-size: 1.4rem; }
+    .ivh-btn { padding: .7rem 1.3rem; font-size: .6rem; }
+  }
+</style>
+
+<script>
+(function () {
+  /* Sätter hero-höjden till exakt det utrymme som finns under navbaren */
+  function setHeroHeight() {
+    var el = document.getElementById('ivh');
+    if (!el) return;
+    var top = el.getBoundingClientRect().top;
+    el.style.height = (window.innerHeight - top) + 'px';
+  }
+  setHeroHeight();
+  window.addEventListener('resize', setHeroHeight);
+})();
+
+(function () {
+  var rotatorEl = document.getElementById('ivhDescRotator');
+  var tagEl     = document.getElementById('ivhTag');
+  if (!rotatorEl || !tagEl) return;
+
+  var slides = Array.prototype.slice.call(rotatorEl.querySelectorAll('.ivh-desc-slide'));
+  if (slides.length < 2) return;
+
+  var current  = 0;
+  var INTERVAL = 8000;
+
+  function next() {
+    var prev = current;
+    current = (current + 1) % slides.length;
+
+    tagEl.style.opacity = '0';
+    setTimeout(function () {
+      tagEl.textContent = slides[current].dataset.tag || '';
+      tagEl.style.opacity = '1';
+    }, 220);
+
+    slides[prev].classList.remove('is-active');
+    slides[current].classList.add('is-active');
+  }
+
+  setInterval(next, INTERVAL);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Hero",
+  "settings": [
+    { "type": "image_picker", "id": "image",        "label": "Hero-bild (desktop, 16:9)" },
+    { "type": "image_picker", "id": "image_mobile", "label": "Hero-bild mobil (stående 4:5, produkter i övre delen)" },
+    { "type": "textarea",     "id": "heading",      "label": "Rubrik",           "default": "Mer än ett mobilskal" },
+    { "type": "textarea",     "id": "description",  "label": "Beskrivning (om inga highlights)",  "default": "Skydd, stil och smart förvaring i ett." },
+    { "type": "text",         "id": "button_label", "label": "Knapp-text",       "default": "Se kollektioner" },
+    { "type": "url",          "id": "button_link",  "label": "Knapp-länk",       "default": "/collections" }
+  ],
+  "blocks": [
+    {
+      "type": "highlight",
+      "name": "Highlight",
+      "settings": [
+        { "type": "text",     "id": "tag",         "label": "Liten etikett",    "default": "AirPods-ficka" },
+        { "type": "textarea", "id": "description", "label": "Beskrivning",      "default": "Ha dina AirPods alltid nära till hands – inbyggt i skalet." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Hero",
+      "blocks": [
+        { "type": "highlight", "settings": { "tag": "AirPods-ficka",       "description": "Ha dina AirPods alltid nära till hands – inbyggt i skalet." } },
+        { "type": "highlight", "settings": { "tag": "Pennförvaring",       "description": "En smart pennhållare för anteckningar på språng." } },
+        { "type": "highlight", "settings": { "tag": "Klassiskt skal",      "description": "Slimmat skydd i flera färger – rent, elegant och hållbart." } },
+        { "type": "highlight", "settings": { "tag": "Innovativ design",    "description": "Varje detalj är designad för att förenkla din vardag." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

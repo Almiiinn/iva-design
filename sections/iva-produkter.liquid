@@ -1,0 +1,608 @@
+{% comment %}
+  IVA Produkter — Horisontell produktkarusell
+  Varje kort visar en produkttyp (t.ex. MagSafe-skal).
+  Varje färgprick = en separat produkt (t.ex. MagSafe Orange, MagSafe Svart).
+  Kunden väljer färg → klickar "Välj modell" → kommer till produktsidan (modell väljs där).
+{% endcomment %}
+
+{%- assign product_blocks = section.blocks | where: 'type', 'product' -%}
+
+<section class="ivpd" id="ivpd">
+
+  <div class="ivpd-header">
+    {%- if section.settings.label != blank -%}
+      <p class="ivpd-label">{{ section.settings.label }}</p>
+    {%- endif -%}
+    <h2 class="ivpd-heading">{{ section.settings.heading | newline_to_br }}</h2>
+    {%- if section.settings.subheading != blank -%}
+      <p class="ivpd-sub">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+  </div>
+
+  <div class="ivpd-carousel">
+
+    <button class="ivpd-arrow ivpd-arrow--prev" id="ivpdPrev" aria-label="Föregående">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="ivpd-wrap" id="ivpdWrap">
+      <div class="ivpd-track" id="ivpdTrack">
+
+        {%- for block in product_blocks -%}
+          {%- assign p1 = block.settings.product_1 -%}
+          {%- assign p2 = block.settings.product_2 -%}
+          {%- assign p3 = block.settings.product_3 -%}
+          {%- assign p4 = block.settings.product_4 -%}
+          {%- assign p5 = block.settings.product_5 -%}
+          {%- assign p6 = block.settings.product_6 -%}
+          {%- assign c1 = block.settings.color_1 -%}
+          {%- assign c2 = block.settings.color_2 -%}
+          {%- assign c3 = block.settings.color_3 -%}
+          {%- assign c4 = block.settings.color_4 -%}
+          {%- assign c5 = block.settings.color_5 -%}
+          {%- assign c6 = block.settings.color_6 -%}
+
+          {%- if p1 == blank -%}{%- continue -%}{%- endif -%}
+
+          {%- assign main_img = p1.featured_image -%}
+          {%- assign main_vid = p1.first_available_variant.id -%}
+          {%- assign main_price = p1.price_min | money -%}
+          {%- assign main_link = p1.url -%}
+          {%- assign card_title = block.settings.card_title | default: p1.title -%}
+          {%- assign card_sub   = block.settings.subtitle -%}
+
+          <a class="ivpd-card" href="{{ main_link }}" {{ block.shopify_attributes }}>
+            {%- if block.settings.badge != blank -%}
+              <span class="ivpd-badge">{{ block.settings.badge }}</span>
+            {%- endif -%}
+            <div class="ivpd-img-wrap">
+              {%- if main_img != blank -%}
+                <img src="{{ main_img | image_url: width: 700 }}"
+                     alt="{{ card_title | escape }}"
+                     class="ivpd-img ivpd-img--main" loading="lazy" width="700"
+                     height="{{ 700 | divided_by: main_img.aspect_ratio | round }}">
+                {%- comment %} Hover-bild = produktens bild 2 {%- endcomment -%}
+                {%- if p1.images.size > 1 -%}
+                  <img src="{{ p1.images[1] | image_url: width: 700 }}"
+                       alt="" aria-hidden="true"
+                       class="ivpd-img ivpd-img--hover" loading="lazy" width="700"
+                       height="{{ 700 | divided_by: p1.images[1].aspect_ratio | round }}">
+                {%- else -%}
+                  <img alt="" aria-hidden="true" class="ivpd-img ivpd-img--hover is-empty" loading="lazy" width="700" height="933">
+                {%- endif -%}
+              {%- else -%}
+                <div class="ivpd-img-placeholder"></div>
+              {%- endif -%}
+
+              <div class="ivpd-overlay" aria-hidden="true">
+                <span class="ivpd-cta">Se produkt →</span>
+              </div>
+            </div>
+
+            <div class="ivpd-body">
+              <div class="ivpd-row-top">
+                <p class="ivpd-title">{{ card_title }}</p>
+                <p class="ivpd-price">{{ main_price }}</p>
+              </div>
+              {%- if card_sub != blank -%}
+                <p class="ivpd-subtitle">{{ card_sub }}</p>
+              {%- elsif p1.description != blank -%}
+                <p class="ivpd-subtitle">{{ p1.description | strip_html | truncate: 90 }}</p>
+              {%- endif -%}
+
+              {%- comment %} Färgprickar — en per produkt {%- endcomment -%}
+              {%- if c1 != blank or c2 != blank or c3 != blank or c4 != blank or c5 != blank or c6 != blank -%}
+                <div class="ivpd-colors">
+
+                  {%- if c1 != blank and p1 != blank -%}
+                    <span class="ivpd-dot ivpd-dot--active"
+                      style="background:{{ c1 }};"
+                      data-variant="{{ p1.first_available_variant.id }}"
+                      data-link="{{ p1.url }}"
+                      data-price="{{ p1.price_min | money }}"
+                      {%- if p1.featured_image != blank %} data-img="{{ p1.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p1.images.size > 1 %} data-img2="{{ p1.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                  {%- if c2 != blank and p2 != blank -%}
+                    <span class="ivpd-dot"
+                      style="background:{{ c2 }};"
+                      data-variant="{{ p2.first_available_variant.id }}"
+                      data-link="{{ p2.url }}"
+                      data-price="{{ p2.price_min | money }}"
+                      {%- if p2.featured_image != blank %} data-img="{{ p2.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p2.images.size > 1 %} data-img2="{{ p2.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                  {%- if c3 != blank and p3 != blank -%}
+                    <span class="ivpd-dot"
+                      style="background:{{ c3 }};"
+                      data-variant="{{ p3.first_available_variant.id }}"
+                      data-link="{{ p3.url }}"
+                      data-price="{{ p3.price_min | money }}"
+                      {%- if p3.featured_image != blank %} data-img="{{ p3.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p3.images.size > 1 %} data-img2="{{ p3.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                  {%- if c4 != blank and p4 != blank -%}
+                    <span class="ivpd-dot"
+                      style="background:{{ c4 }};"
+                      data-variant="{{ p4.first_available_variant.id }}"
+                      data-link="{{ p4.url }}"
+                      data-price="{{ p4.price_min | money }}"
+                      {%- if p4.featured_image != blank %} data-img="{{ p4.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p4.images.size > 1 %} data-img2="{{ p4.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                  {%- if c5 != blank and p5 != blank -%}
+                    <span class="ivpd-dot"
+                      style="background:{{ c5 }};"
+                      data-variant="{{ p5.first_available_variant.id }}"
+                      data-link="{{ p5.url }}"
+                      data-price="{{ p5.price_min | money }}"
+                      {%- if p5.featured_image != blank %} data-img="{{ p5.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p5.images.size > 1 %} data-img2="{{ p5.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                  {%- if c6 != blank and p6 != blank -%}
+                    <span class="ivpd-dot"
+                      style="background:{{ c6 }};"
+                      data-variant="{{ p6.first_available_variant.id }}"
+                      data-link="{{ p6.url }}"
+                      data-price="{{ p6.price_min | money }}"
+                      {%- if p6.featured_image != blank %} data-img="{{ p6.featured_image | image_url: width: 700 }}"{% endif %}
+                      {%- if p6.images.size > 1 %} data-img2="{{ p6.images[1] | image_url: width: 700 }}"{% endif %}></span>
+                  {%- endif -%}
+
+                </div>
+              {%- endif -%}
+
+              <button class="ivpd-cart-btn"
+                data-variant="{{ main_vid }}"
+                data-link="{{ main_link }}"
+                aria-label="Välj modell">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="6" y="2" width="12" height="20" rx="3"/>
+                  <line x1="10" y1="18" x2="14" y2="18"/>
+                </svg>
+                <span class="ivpd-cart-label">Välj modell</span>
+                <span class="ivpd-cart-plus">→</span>
+              </button>
+            </div>
+          </a>
+        {%- endfor -%}
+
+        {%- comment %} Klonkort för mobil-loop {%- endcomment -%}
+        {%- for block in product_blocks -%}
+          {%- assign p1 = block.settings.product_1 -%}
+          {%- if p1 == blank -%}{%- continue -%}{%- endif -%}
+          {%- assign c1 = block.settings.color_1 -%}
+          {%- assign c2 = block.settings.color_2 -%}
+          {%- assign c3 = block.settings.color_3 -%}
+          {%- assign c4 = block.settings.color_4 -%}
+          {%- assign c5 = block.settings.color_5 -%}
+          {%- assign c6 = block.settings.color_6 -%}
+          {%- assign card_title = block.settings.card_title | default: p1.title -%}
+
+          <a class="ivpd-card ivpd-card--clone" href="{{ p1.url }}" aria-hidden="true" tabindex="-1">
+            {%- if block.settings.badge != blank -%}
+              <span class="ivpd-badge">{{ block.settings.badge }}</span>
+            {%- endif -%}
+            <div class="ivpd-img-wrap">
+              {%- if p1.featured_image != blank -%}
+                <img src="{{ p1.featured_image | image_url: width: 700 }}" alt="" class="ivpd-img ivpd-img--main" loading="lazy" width="700" height="{{ 700 | divided_by: p1.featured_image.aspect_ratio | round }}">
+              {%- else -%}
+                <div class="ivpd-img-placeholder"></div>
+              {%- endif -%}
+            </div>
+            <div class="ivpd-body">
+              <div class="ivpd-row-top">
+                <p class="ivpd-title">{{ card_title }}</p>
+                <p class="ivpd-price">{{ p1.price_min | money }}</p>
+              </div>
+              {%- if block.settings.subtitle != blank -%}
+                <p class="ivpd-subtitle">{{ block.settings.subtitle }}</p>
+              {%- endif -%}
+              {%- if c1 != blank or c2 != blank or c3 != blank or c4 != blank or c5 != blank or c6 != blank -%}
+                <div class="ivpd-colors">
+                  {%- if c1 != blank -%}<span class="ivpd-dot" style="background:{{ c1 }};"></span>{%- endif -%}
+                  {%- if c2 != blank -%}<span class="ivpd-dot" style="background:{{ c2 }};"></span>{%- endif -%}
+                  {%- if c3 != blank -%}<span class="ivpd-dot" style="background:{{ c3 }};"></span>{%- endif -%}
+                  {%- if c4 != blank -%}<span class="ivpd-dot" style="background:{{ c4 }};"></span>{%- endif -%}
+                  {%- if c5 != blank -%}<span class="ivpd-dot" style="background:{{ c5 }};"></span>{%- endif -%}
+                  {%- if c6 != blank -%}<span class="ivpd-dot" style="background:{{ c6 }};"></span>{%- endif -%}
+                </div>
+              {%- endif -%}
+              <button class="ivpd-cart-btn" aria-hidden="true" tabindex="-1" style="pointer-events:none">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="6" y="2" width="12" height="20" rx="3"/>
+                  <line x1="10" y1="18" x2="14" y2="18"/>
+                </svg>
+                <span class="ivpd-cart-label">Välj modell</span>
+                <span class="ivpd-cart-plus">→</span>
+              </button>
+            </div>
+          </a>
+        {%- endfor -%}
+
+      </div>
+    </div>
+
+    <button class="ivpd-arrow ivpd-arrow--next" id="ivpdNext" aria-label="Nästa">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+  </div>
+</section>
+
+<style>
+  .ivpd {
+    background: linear-gradient(180deg, #f9f3eb 0%, #f0e6d3 50%, #f9f3eb 100%);
+    padding: 4rem 0 5rem;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: -2px;
+  }
+  .ivpd-header { text-align: center; padding: 0 1.5rem; margin-bottom: 2.5rem; }
+  .ivpd-label { font-size: .8rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #1D1D1F; margin: 0 0 .75rem; }
+  .ivpd-heading { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 300; line-height: 1.1; letter-spacing: -.3px; color: #1D1D1F; margin: 0 0 .6rem; }
+  .ivpd-sub { font-size: .9rem; font-weight: 300; color: rgba(29,29,31,0.55); line-height: 1.65; max-width: 440px; margin: 0 auto; }
+  .ivpd-carousel { display: flex; align-items: center; }
+  .ivpd-wrap { flex: 1; overflow: hidden; cursor: grab; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%); }
+  .ivpd-wrap.is-dragging { cursor: grabbing; }
+  .ivpd-track { display: flex; gap: 1.25rem; width: max-content; padding: 0.5rem 2rem 1.5rem; }
+  .ivpd-card--clone { display: none !important; }
+  .ivpd-arrow { flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; background: #FFFFFF; border: 1px solid rgba(29,29,31,0.12); box-shadow: 0 4px 14px rgba(0,0,0,0.09); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1D1D1F; z-index: 5; margin: 0 .75rem; transition: opacity .25s ease, transform .2s ease, box-shadow .2s ease; }
+  .ivpd-arrow:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.14); }
+  .ivpd-arrow.is-hidden { opacity: 0; pointer-events: none; }
+
+  /* ── KORT — identiskt med kollektionssidan ── */
+  .ivpd-card {
+    flex-shrink: 0;
+    width: 270px;
+    background: #f3ecdf;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 28px rgba(29,29,31,0.22);
+    transition: transform .35s ease, box-shadow .35s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .ivpd-card:hover { transform: translateY(-8px); box-shadow: 0 20px 48px rgba(29,29,31,0.12); }
+
+  .ivpd-img-wrap { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: #f3ecdf; }
+  .ivpd-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform .5s ease, opacity .45s ease;
+  }
+  .ivpd-card:hover .ivpd-img { transform: scale(1.04); }
+
+  /* Hover-bild: bild 2 tonar in ovanpå bild 1 (kortet får .has-hover via JS när bild 2 finns) */
+  .ivpd-img--hover { opacity: 0; z-index: 1; }
+  .ivpd-img--hover.is-empty { display: none; }
+  .ivpd-card.has-hover:hover .ivpd-img--hover { opacity: 1; }
+  .ivpd-card.has-hover:hover .ivpd-img--main  { opacity: 0; }
+  .ivpd-card:hover .ivpd-overlay { opacity: 1; }
+
+  .ivpd-img-placeholder { width: 100%; height: 100%; background: #e5dbd0; }
+
+  /* Overlay "Se produkt" */
+  .ivpd-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(29,29,31,0.22);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1.25rem;
+    opacity: 0;
+    z-index: 2;
+    transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .ivpd-cta {
+    background: #f3ecdf;
+    color: #1D1D1F;
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .65rem 1.5rem;
+    border-radius: 50px;
+  }
+
+  /* Köpknapp — identisk med kollektionssidan */
+  .ivpd-cart-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .75rem 1rem;
+    margin-top: .6rem;
+    background: rgba(29,29,31,0.06);
+    border: 1px solid rgba(29,29,31,0.10);
+    border-radius: 50px;
+    cursor: pointer;
+    color: #1D1D1F;
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .1px;
+    font-family: inherit;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  .ivpd-cart-btn:hover { background: #1D1D1F; color: #FFFFFF; border-color: #1D1D1F; }
+  .ivpd-cart-label { flex: 1; }
+  .ivpd-cart-plus { font-size: 1.1rem; font-weight: 300; line-height: 1; opacity: .7; }
+  .ivpd-cart-btn:hover .ivpd-cart-plus { opacity: 1; }
+  .ivpd-cart-btn.is-loading { opacity: .5; pointer-events: none; }
+  .ivpd-cart-btn.is-added { background: #1D1D1F; color: #FFFFFF; border-color: #1D1D1F; }
+
+  .ivpd-badge { position: absolute; top: .75rem; left: .75rem; background: #1D1D1F; color: #f9f3eb; font-size: .5rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: .25rem .55rem; border-radius: 50px; z-index: 3; pointer-events: none; }
+  .ivpd-body { padding: .9rem 1rem 1rem; border-top: 1px solid rgba(29,29,31,0.07); display: flex; flex-direction: column; gap: .4rem; flex: 1; }
+  .ivpd-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+  .ivpd-title { font-size: .85rem; font-weight: 600; color: #1D1D1F; margin: 0; line-height: 1.3; letter-spacing: .1px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ivpd-price { font-size: .8rem; font-weight: 500; color: rgba(29,29,31,0.75); margin: 0; white-space: nowrap; }
+  .ivpd-subtitle { font-size: .73rem; color: rgba(29,29,31,0.5); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ivpd-colors { display: flex; gap: .45rem; margin-top: auto; padding-top: .6rem; flex-wrap: wrap; }
+  .ivpd-dot { position: relative; width: 18px; height: 18px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); cursor: pointer; transition: box-shadow .2s ease, transform .15s ease; -webkit-tap-highlight-color: transparent; }
+  .ivpd-dot::after { content: ''; position: absolute; top: -8px; left: -8px; right: -8px; bottom: -8px; }
+  .ivpd-dot:hover { transform: scale(1.15); }
+  .ivpd-dot--active { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12), 0 0 0 2.5px #f3ecdf, 0 0 0 4px rgba(29,29,31,0.55); }
+  .ivpd-card--clone .ivpd-dot { cursor: default; pointer-events: none; }
+
+  @media (min-width: 769px) {
+    .ivpd { padding: 5.5rem 0 7rem; }
+    .ivpd-header { margin-bottom: 3.5rem; }
+    .ivpd-wrap { -webkit-mask-image: none; mask-image: none; }
+    .ivpd-track { gap: 1.5rem; padding: 0.5rem 1.5rem 2rem; }
+    .ivpd-card { width: 330px; }
+    .ivpd-body { padding: 1.1rem 1.2rem 1.2rem; gap: .5rem; min-height: 180px; }
+    .ivpd-title { font-size: .92rem; }
+    .ivpd-price { font-size: .85rem; }
+    .ivpd-subtitle { font-size: .8rem; }
+    .ivpd-dot { width: 20px; height: 20px; }
+  }
+  @media (max-width: 768px) {
+    .ivpd-cart-btn { justify-content: center; gap: .5rem; font-size: .62rem; padding: .65rem .8rem; }
+    .ivpd-cart-btn svg { display: none; }
+    .ivpd-carousel { position: relative; }
+    .ivpd-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; margin: 0; width: 36px; height: 36px; }
+    .ivpd-arrow--prev { left: .5rem; }
+    .ivpd-arrow--next { right: .5rem; }
+    .ivpd-wrap { -webkit-mask-image: none; mask-image: none; }
+    /* Ingen hover på touch */
+    .ivpd-overlay { display: none; }
+    .ivpd-img--hover { display: none; }
+    .ivpd-card:hover .ivpd-img--main { opacity: 1; }
+  }
+  @media (max-width: 500px) {
+    .ivpd { padding: 1.5rem 0 2rem; }
+    .ivpd-header { margin-bottom: 1.75rem; }
+    .ivpd-arrow { width: 32px; height: 32px; }
+    .ivpd-track { gap: .75rem; padding: 0.5rem 1rem 1rem; }
+    .ivpd-card { width: calc(50vw - 1.375rem); border-radius: 12px; }
+    .ivpd-body { padding: .65rem .8rem .8rem; min-height: auto; }
+    .ivpd-title { font-size: .75rem; }
+    .ivpd-price { font-size: .72rem; }
+    .ivpd-subtitle { font-size: .72rem; -webkit-line-clamp: 2; }
+    .ivpd-badge { position: relative; top: auto; left: auto; display: inline-block; align-self: flex-start; margin: .6rem 0 0 .7rem; font-size: .48rem; letter-spacing: 1.2px; padding: .25rem .55rem; }
+    .ivpd-dot { width: 16px; height: 16px; }
+  }
+</style>
+
+<script>
+(function () {
+  var wrap    = document.getElementById('ivpdWrap');
+  var track   = document.getElementById('ivpdTrack');
+  var prevBtn = document.getElementById('ivpdPrev');
+  var nextBtn = document.getElementById('ivpdNext');
+  if (!wrap || !track || !prevBtn || !nextBtn) return;
+
+  var offset = 0, targetOffset = 0, animating = false;
+  var dragging = false, startX = 0, startOffset = 0;
+  var touchStartY = 0, touchIsHoriz = null;
+
+  function maxScroll() { return Math.max(0, track.scrollWidth - wrap.offsetWidth); }
+  function clamp(x)    { return Math.max(0, Math.min(x, maxScroll())); }
+  function updateArrows() {
+    var max = maxScroll();
+    prevBtn.classList.toggle('is-hidden', offset < 5);
+    nextBtn.classList.toggle('is-hidden', offset > max - 5);
+  }
+  function tick() {
+    if (!dragging && animating) {
+      var diff = targetOffset - offset;
+      if (Math.abs(diff) < 0.5) { offset = targetOffset; animating = false; }
+      else { offset += diff * 0.1; }
+      track.style.transform = 'translateX(-' + offset + 'px)';
+      updateArrows();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  setTimeout(updateArrows, 80);
+  window.addEventListener('resize', updateArrows);
+
+  /* ── Markera kort som har hover-bild ── */
+  function syncHoverClass(card) {
+    var h = card.querySelector('.ivpd-img--hover');
+    card.classList.toggle('has-hover', !!(h && !h.classList.contains('is-empty')));
+  }
+  document.querySelectorAll('.ivpd-card:not(.ivpd-card--clone)').forEach(syncHoverClass);
+
+  /* ── FÖRINLÄS alla färgbilder direkt vid sidladdning ── */
+  document.querySelectorAll('.ivpd-card:not(.ivpd-card--clone) .ivpd-dot').forEach(function (dot) {
+    if (dot.dataset.img)  (new Image()).src = dot.dataset.img;
+    if (dot.dataset.img2) (new Image()).src = dot.dataset.img2;
+  });
+
+  function cardStep() {
+    var card = track.querySelector('.ivpd-card');
+    if (!card) return 260;
+    return card.offsetWidth + (parseFloat(window.getComputedStyle(track).gap) || 20);
+  }
+  function snapNearest() { targetOffset = clamp(Math.round(offset / cardStep()) * cardStep()); animating = true; }
+  function snapStep(d)   { targetOffset = clamp((Math.round(offset / cardStep()) + d) * cardStep()); animating = true; }
+
+  nextBtn.addEventListener('click', function () { snapStep(1); });
+  prevBtn.addEventListener('click', function () { snapStep(-1); });
+
+  wrap.addEventListener('mousedown', function (e) {
+    dragging = true; startX = e.pageX; startOffset = offset;
+    wrap.classList.add('is-dragging'); e.preventDefault();
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    offset = clamp(startOffset + (startX - e.pageX));
+    track.style.transform = 'translateX(-' + offset + 'px)';
+    updateArrows();
+  });
+  document.addEventListener('mouseup', function () {
+    if (!dragging) return;
+    dragging = false; wrap.classList.remove('is-dragging'); snapNearest();
+  });
+  wrap.addEventListener('touchstart', function (e) {
+    startX = e.touches[0].pageX; touchStartY = e.touches[0].pageY;
+    startOffset = offset; dragging = false; touchIsHoriz = null;
+  }, { passive: true });
+  wrap.addEventListener('touchmove', function (e) {
+    var dx = e.touches[0].pageX - startX, dy = e.touches[0].pageY - touchStartY;
+    if (touchIsHoriz === null) touchIsHoriz = Math.abs(dx) > Math.abs(dy);
+    if (!touchIsHoriz) return;
+    e.preventDefault(); dragging = true;
+    offset = clamp(startOffset - dx);
+    track.style.transform = 'translateX(-' + offset + 'px)';
+    updateArrows();
+  }, { passive: false });
+  wrap.addEventListener('touchend', function () { dragging = false; touchIsHoriz = null; snapNearest(); });
+
+  /* ── KNAPP: gå till produktsidan (modell väljs där) ── */
+  document.querySelectorAll('.ivpd-card:not(.ivpd-card--clone) .ivpd-cart-btn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var link = btn.dataset.link || btn.closest('.ivpd-card').getAttribute('href');
+      if (link && link !== '#') window.location.href = link;
+    });
+  });
+
+  /* ── FÄRGPRICK: byt bild 1, hover-bild, variant, pris och länk ── */
+  document.querySelectorAll('.ivpd-card:not(.ivpd-card--clone) .ivpd-dot').forEach(function (dot) {
+    dot.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var card       = dot.closest('.ivpd-card');
+      var imgEl      = card.querySelector('.ivpd-img--main');
+      var hoverEl    = card.querySelector('.ivpd-img--hover');
+      var btn        = card.querySelector('.ivpd-cart-btn');
+      var priceEl    = card.querySelector('.ivpd-price');
+
+      /* Byt huvudbild — vänta tills ny bild är laddad (finns i cache = omedelbart) */
+      if (imgEl && dot.dataset.img) {
+        var newImg = new Image();
+        newImg.onload = function () {
+          imgEl.style.opacity = '0';
+          setTimeout(function () {
+            imgEl.src = dot.dataset.img;
+            imgEl.style.opacity = '';
+          }, 80);
+        };
+        newImg.src = dot.dataset.img;
+      }
+      /* Byt hover-bild */
+      if (hoverEl) {
+        if (dot.dataset.img2) {
+          hoverEl.src = dot.dataset.img2;
+          hoverEl.classList.remove('is-empty');
+        } else {
+          hoverEl.removeAttribute('src');
+          hoverEl.classList.add('is-empty');
+        }
+        syncHoverClass(card);
+      }
+      /* Uppdatera variant + länk */
+      if (btn) {
+        if (dot.dataset.variant) btn.dataset.variant = dot.dataset.variant;
+        if (dot.dataset.link)    btn.dataset.link    = dot.dataset.link;
+      }
+      /* Uppdatera pris */
+      if (priceEl && dot.dataset.price) priceEl.textContent = dot.dataset.price;
+      /* Uppdatera kortlänk */
+      if (dot.dataset.link) card.href = dot.dataset.link;
+
+      /* Aktiv prick */
+      card.querySelectorAll('.ivpd-dot').forEach(function (d) { d.classList.remove('ivpd-dot--active'); });
+      dot.classList.add('ivpd-dot--active');
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Produkter",
+  "settings": [
+    { "type": "text",     "id": "label",      "label": "Liten etikett",  "default": "Våra produkter" },
+    { "type": "textarea", "id": "heading",    "label": "Rubrik",         "default": "Designade för din vardag." },
+    { "type": "textarea", "id": "subheading", "label": "Underrubrik",    "default": "Skydd, stil och smart förvaring — välj ditt favoritskal." }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Produktkort",
+      "settings": [
+        {
+          "type": "text",
+          "id": "card_title",
+          "label": "Kortets titel",
+          "info": "Lämna tomt för att använda produktens namn"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Kort beskrivning (valfritt)"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge (t.ex. Nyhet, Populär)"
+        },
+        { "type": "header", "content": "Färg 1" },
+        { "type": "product", "id": "product_1", "label": "Välj produkt – Färg 1" },
+        { "type": "color",   "id": "color_1",   "label": "Prickfärg 1" },
+        { "type": "header", "content": "Färg 2" },
+        { "type": "product", "id": "product_2", "label": "Välj produkt – Färg 2" },
+        { "type": "color",   "id": "color_2",   "label": "Prickfärg 2" },
+        { "type": "header", "content": "Färg 3" },
+        { "type": "product", "id": "product_3", "label": "Välj produkt – Färg 3" },
+        { "type": "color",   "id": "color_3",   "label": "Prickfärg 3" },
+        { "type": "header", "content": "Färg 4" },
+        { "type": "product", "id": "product_4", "label": "Välj produkt – Färg 4" },
+        { "type": "color",   "id": "color_4",   "label": "Prickfärg 4" },
+        { "type": "header", "content": "Färg 5" },
+        { "type": "product", "id": "product_5", "label": "Välj produkt – Färg 5" },
+        { "type": "color",   "id": "color_5",   "label": "Prickfärg 5" },
+        { "type": "header", "content": "Färg 6" },
+        { "type": "product", "id": "product_6", "label": "Välj produkt – Färg 6" },
+        { "type": "color",   "id": "color_6",   "label": "Prickfärg 6" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "IVA Produkter" }
+  ]
+}
+{% endschema %}

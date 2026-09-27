@@ -1,0 +1,241 @@
+{
+  "sections": {
+    "main": {
+      "type": "iva-faq",
+      "blocks": {
+        "category_01": {
+          "type": "category",
+          "settings": {
+            "title": "Beställning & betalning",
+            "anchor": "betalning"
+          }
+        },
+        "question_02": {
+          "type": "question",
+          "settings": {
+            "q": "Vilka betalsätt kan jag använda?",
+            "a": "<p>Vi tar emot Klarna (faktura, delbetalning och direktbetalning), Visa, Mastercard, Apple Pay och Google Pay. Alla betalningar är krypterade och sköts av Shopify Payments och Klarna.</p>"
+          }
+        },
+        "question_03": {
+          "type": "question",
+          "settings": {
+            "q": "Kan jag delbetala?",
+            "a": "<p>Ja. Välj Klarna i kassan så kan du dela upp betalningen eller betala inom 30 dagar. Villkoren visas innan du bekräftar köpet.</p>"
+          }
+        },
+        "question_04": {
+          "type": "question",
+          "settings": {
+            "q": "Är priserna inklusive moms?",
+            "a": "<p>Ja, alla priser i butiken är inklusive 25 % moms. Inga extra avgifter tillkommer i kassan utöver eventuell frakt.</p>"
+          }
+        },
+        "question_05": {
+          "type": "question",
+          "settings": {
+            "q": "Kan jag ändra eller avbryta min order?",
+            "a": "<p>Kontakta oss så snart som möjligt via <a href=\"/pages/kontakt\">kontaktsidan</a> och ange ditt ordernummer. Har ordern inte packats ändrar vi den. Har den redan skickats kan du använda 30 dagars öppet köp.</p>"
+          }
+        },
+        "question_06": {
+          "type": "question",
+          "settings": {
+            "q": "Får jag en orderbekräftelse?",
+            "a": "<p>Ja, direkt till den e-post du angav i kassan. Kommer den inte inom några minuter, kolla skräpposten.</p>"
+          }
+        },
+        "category_07": {
+          "type": "category",
+          "settings": {
+            "title": "Frakt & leverans",
+            "anchor": "leverans"
+          }
+        },
+        "question_08": {
+          "type": "question",
+          "settings": {
+            "q": "Hur lång är leveranstiden?",
+            "a": "<p>1–5 vardagar inom Sverige. Paketet levereras direkt i din brevlåda med PostNord, spårbart hela vägen.</p>"
+          }
+        },
+        "question_09": {
+          "type": "question",
+          "settings": {
+            "q": "Vad kostar frakten?",
+            "a": "<p>Frakten kostar 45 kr per order, oavsett hur många skal du beställer.</p>"
+          }
+        },
+        "question_10": {
+          "type": "question",
+          "settings": {
+            "q": "Vilka fraktbolag använder ni?",
+            "a": "<p>Vi skickar med PostNord. Du väljer själv i kassan om du vill hämta hos ombud, i paketbox eller få hemleverans.</p>"
+          }
+        },
+        "question_11": {
+          "type": "question",
+          "settings": {
+            "q": "Kan jag spåra mitt paket?",
+            "a": "<p>Ja. När paketet skickats får du ett mejl med spårningslänk. Du hittar den även under <a href=\"/pages/mitt-konto\">Mitt konto</a>.</p>"
+          }
+        },
+        "question_12": {
+          "type": "question",
+          "settings": {
+            "q": "Skickar ni utanför Sverige?",
+            "a": "<p>Just nu levererar vi inom Sverige. Fler länder är på gång – följ oss på Instagram för nyheter.</p>"
+          }
+        },
+        "category_13": {
+          "type": "category",
+          "settings": {
+            "title": "Retur & byte",
+            "anchor": "retur"
+          }
+        },
+        "question_14": {
+          "type": "question",
+          "settings": {
+            "q": "Hur returnerar jag?",
+            "a": "<p>Du har 14 dagars ångerrätt. Gå till <a href=\"/pages/retur\">Ångra & retur</a> och fyll i formuläret. Inom 2 arbetsdagar får du en QR-kod från PostNord – visa den hos närmaste ombud så skriver de ut etiketten. Returfrakten 49 kr dras av från återbetalningen.</p>"
+          }
+        },
+        "question_15": {
+          "type": "question",
+          "settings": {
+            "q": "Vad kostar returen?",
+            "a": "<p>Returfrakten är 49 kr och dras av från återbetalningen. Vid byte till annan modell eller färg står vi för frakten.</p>"
+          }
+        },
+        "question_16": {
+          "type": "question",
+          "settings": {
+            "q": "När får jag pengarna tillbaka?",
+            "a": "<p>Inom 5 vardagar efter att vi tagit emot returen. Betalade du med Klarna justeras fakturan automatiskt.</p>"
+          }
+        },
+        "question_17": {
+          "type": "question",
+          "settings": {
+            "q": "Kan jag byta till en annan färg eller modell?",
+            "a": "<p>Ja. Ange önskad färg och modell i returformuläret så skickar vi det nya skalet så snart returen registrerats.</p>"
+          }
+        },
+        "question_18": {
+          "type": "question",
+          "settings": {
+            "q": "Skalet är skadat eller fel – vad gör jag?",
+            "a": "<p>Hör av dig via <a href=\"/pages/kontakt\">kontaktsidan</a> med ordernummer och en bild, så löser vi det direkt – oftast med ett nytt skal utan kostnad.</p>"
+          }
+        },
+        "category_19": {
+          "type": "category",
+          "settings": {
+            "title": "Produkter & passform",
+            "anchor": "produkter"
+          }
+        },
+        "question_20": {
+          "type": "question",
+          "settings": {
+            "q": "Passar skalet min iPhone-modell?",
+            "a": "<p>Varje skal är gjort för en specifik modell. Välj din modell på produktsidan – vi visar bara bilder och varianter som passar din telefon.</p>"
+          }
+        },
+        "question_21": {
+          "type": "question",
+          "settings": {
+            "q": "Fungerar MagSafe genom skalet?",
+            "a": "<p>Ja, Silicone Case Magsafe har inbyggd magnetring för trådlös laddning och MagSafe-tillbehör. Övriga skal fungerar med vanlig trådlös laddning.</p>"
+          }
+        },
+        "question_22": {
+          "type": "question",
+          "settings": {
+            "q": "Vilka AirPods passar i AirPods Holder Case?",
+            "a": "<p>AirPods 4-laddningsfodral. Se produktsidan för exakt kompatibilitet.</p>"
+          }
+        },
+        "question_23": {
+          "type": "question",
+          "settings": {
+            "q": "Hur rengör jag skalet?",
+            "a": "<p>Torka av med en mjuk, lätt fuktad trasa och milt diskmedel. Undvik alkohol och starka rengöringsmedel – silikonet mår bäst utan.</p>"
+          }
+        },
+        "question_24": {
+          "type": "question",
+          "settings": {
+            "q": "En modell är slut – när kommer den?",
+            "a": "<p>Klicka på <b>Meddela mig</b> på produktsidan så mejlar vi dig automatiskt samma sekund modellen är tillbaka i lager.</p>"
+          }
+        },
+        "category_25": {
+          "type": "category",
+          "settings": {
+            "title": "Konto",
+            "anchor": "konto"
+          }
+        },
+        "question_26": {
+          "type": "question",
+          "settings": {
+            "q": "Behöver jag ett konto för att handla?",
+            "a": "<p>Nej, du kan handla som gäst. Med konto ser du dina ordrar, sparar favoriter och kan bevaka produkter som är slut.</p>"
+          }
+        },
+        "question_27": {
+          "type": "question",
+          "settings": {
+            "q": "Hur loggar jag in?",
+            "a": "<p>Klicka på kontoikonen uppe till höger, ange din e-post och skriv in engångskoden vi mejlar. Inget lösenord behövs.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "category_01",
+        "question_02",
+        "question_03",
+        "question_04",
+        "question_05",
+        "question_06",
+        "category_07",
+        "question_08",
+        "question_09",
+        "question_10",
+        "question_11",
+        "question_12",
+        "category_13",
+        "question_14",
+        "question_15",
+        "question_16",
+        "question_17",
+        "question_18",
+        "category_19",
+        "question_20",
+        "question_21",
+        "question_22",
+        "question_23",
+        "question_24",
+        "category_25",
+        "question_26",
+        "question_27"
+      ],
+      "name": "IVA Hjälpcenter",
+      "settings": {
+        "eyebrow": "Hjälpcenter",
+        "heading": "Hur kan vi hjälpa dig?",
+        "text": "Svar på det mesta – från betalning och leverans till passform.",
+        "search_placeholder": "Sök bland vanliga frågor…",
+        "open_first": true,
+        "help_heading": "Hittade du inte svaret?",
+        "help_text": "Vi svarar inom 2 arbetsdagar.",
+        "help_label": "Kontakta oss"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

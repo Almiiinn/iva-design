@@ -1,0 +1,111 @@
+{%- comment -%}
+  IVA – Juridisk textsida med innehållsmeny (sections/iva-villkor.liquid).
+  Används för Allmänna villkor (/pages/allmanna-villkor) OCH Personuppgiftspolicy (/pages/personuppgiftspolicy).
+  Varje avsnitt är ett block (rubrik + text). Menyn till vänster byggs automatiskt.
+{%- endcomment -%}
+
+<section class="ivtos">
+  <div class="ivtos-inner">
+    <div class="ivtos-head">
+      <p class="ivtos-eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1>{{ section.settings.heading }}</h1>
+      {%- if section.settings.text != blank -%}<p class="ivtos-lead">{{ section.settings.text }}</p>{%- endif -%}
+    </div>
+
+    <div class="ivtos-grid">
+      <aside class="ivtos-nav">
+        <p class="ivtos-eyebrow">Innehåll</p>
+        {%- for block in section.blocks -%}
+          <a href="#{{ block.settings.title | handleize }}">{{ forloop.index }}. {{ block.settings.title }}</a>
+        {%- endfor -%}
+      </aside>
+      <div class="ivtos-body">
+        {%- for block in section.blocks -%}
+          <h2 id="{{ block.settings.title | handleize }}" {{ block.shopify_attributes }}>{{ forloop.index }}. {{ block.settings.title }}</h2>
+          <div class="ivtos-text">{{ block.settings.text }}</div>
+        {%- endfor -%}
+        {%- if section.settings.updated != blank -%}
+          <p class="ivtos-upd">Senast uppdaterad: {{ section.settings.updated }} · {{ section.settings.company }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ivtos { background: #faf6f0; color: #1D1D1F; padding: 3rem 1.25rem 5rem; margin-bottom: -2px; }
+  .ivtos * { box-sizing: border-box; }
+  .ivtos-inner { max-width: 1040px; margin: 0 auto; }
+  .ivtos-eyebrow { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .6rem; }
+  .ivtos-head { text-align: center; margin-bottom: 2.5rem; }
+  .ivtos h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.2rem, 4.4vw, 3.4rem); margin: 0 0 .5rem; color: #1D1D1F !important; }
+  .ivtos-lead { color: rgba(29,29,31,.65); margin: 0 auto; max-width: 520px; }
+  .ivtos-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; }
+  .ivtos-nav { background: #f7f3eb; border: 1px solid rgba(29,29,31,.09); border-radius: 16px; padding: 1.2rem 1.3rem; }
+  .ivtos-nav a { display: block; font-size: .82rem; color: rgba(29,29,31,.68); text-decoration: none; padding: .28rem 0; }
+  .ivtos-nav a:hover { color: #1D1D1F; }
+  .ivtos-body h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.6rem; margin: 2.2rem 0 .5rem; scroll-margin-top: 110px; color: #1D1D1F !important; }
+  .ivtos-body h2:first-child { margin-top: 0; }
+  .ivtos-text { color: rgba(29,29,31,.8); max-width: 680px; line-height: 1.7; font-size: .95rem; }
+  .ivtos-text p { margin: 0 0 .8rem; } .ivtos-text ul { margin: 0 0 .8rem 1.2rem; padding: 0; }
+  .ivtos-text a { color: #1D1D1F; text-decoration: underline; }
+  .ivtos-upd { font-size: .75rem; color: rgba(29,29,31,.55); margin-top: 3rem; border-top: 1px solid rgba(29,29,31,.1); padding-top: 1rem; }
+  @media (min-width: 860px) {
+    .ivtos { padding: 4.5rem 2.5rem 6rem; }
+    .ivtos-grid { grid-template-columns: 230px 1fr; gap: 3.5rem; }
+    .ivtos-nav { position: sticky; top: 100px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "IVA Juridisk sida",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Liten rubrik", "default": "Juridiskt" },
+    { "type": "text", "id": "heading", "label": "Rubrik", "default": "Allmänna villkor" },
+    { "type": "text", "id": "text", "label": "Text under rubrik", "default": "Enkelt och tydligt – precis som våra skal." },
+    { "type": "text", "id": "company", "label": "Företag", "default": "2M Interlokal AB, org.nr 559356-3991" },
+    { "type": "text", "id": "updated", "label": "Senast uppdaterad", "default": "22 september 2026" }
+  ],
+  "blocks": [
+    {
+      "type": "section", "name": "Avsnitt",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Rubrik", "default": "Rubrik" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Text.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Allmänna villkor",
+      "settings": { "heading": "Allmänna villkor", "eyebrow": "Juridiskt" },
+      "blocks": [
+        { "type": "section", "settings": { "title": "Allmänt", "text": "<p>Dessa villkor gäller när du handlar i webbutiken ivadesign.se, som drivs av 2M Interlokal AB, org.nr 559356-3991 (”IVA”, ”vi”). Genom att lägga en beställning godkänner du villkoren. Vi följer svensk konsumentlagstiftning, bland annat konsumentköplagen och distansavtalslagen. För att handla hos oss ska du vara 18 år eller ha målsmans tillstånd.</p>" } },
+        { "type": "section", "settings": { "title": "Beställning och avtal", "text": "<p>När du slutfört köpet skickar vi en orderbekräftelse till din e-post. Avtalet blir bindande när du fått bekräftelsen. Vi förbehåller oss rätten att neka eller häva en beställning vid uppenbara felaktigheter i pris eller lagersaldo, vid misstänkt bedrägeri eller om varan inte kan levereras – du meddelas i så fall snarast och eventuell betalning återbetalas.</p>" } },
+        { "type": "section", "settings": { "title": "Priser och betalning", "text": "<p>Alla priser anges i svenska kronor inklusive 25 % moms. Eventuell fraktkostnad visas i kassan innan du bekräftar köpet. Betalning sker via Klarna (faktura, delbetalning eller direktbetalning), kort (Visa, Mastercard), Apple Pay eller Google Pay. Vid betalning via Klarna gäller Klarnas villkor för den valda betalmetoden. Vi reserverar oss för prisändringar, slutförsäljning och tryckfel.</p>" } },
+        { "type": "section", "settings": { "title": "Leverans", "text": "<p>Vi levererar inom Sverige med PostNord direkt i din brevlåda. Normal leveranstid är 1–5 vardagar från att ordern skickats. Frakten kostar 45 kr per order. Skulle en vara vara försenad meddelar vi dig; är förseningen väsentlig har du rätt att häva köpet. Ej uthämtade paket som går i retur debiteras med 99 kr för frakt och hantering.</p>" } },
+        { "type": "section", "settings": { "title": "Ångerrätt och öppet köp", "text": "<p>Du har 14 dagars ångerrätt enligt distansavtalslagen, räknat från den dag du tog emot varan. Du får undersöka varan som i en butik, men används den mer än så kan vi göra avdrag för värdeminskning. Varan ska returneras i ursprungligt skick och med originalförpackning. Meddela oss via <a href=\"/pages/retur\">Ångra &amp; retur</a> eller <a href=\"/pages/kontakt\">kontaktsidan</a>, så får du en QR-kod från PostNord som du visar hos närmaste ombud – ingen skrivare behövs. Returer skickas till 2M Interlokal AB, Gustafsvägen 4, 169 58 Solna. Returfrakt kostar 49 kr och dras av vid återbetalningen. Återbetalning sker inom 14 dagar efter att vi tagit emot returen, med samma betalsätt som vid köpet. Konsumentverkets ångerblankett kan användas och finns på <a href=\"https://www.konsumentverket.se\" target=\"_blank\" rel=\"noopener\">konsumentverket.se</a>.</p>" } },
+        { "type": "section", "settings": { "title": "Reklamation och garanti", "text": "<p>Du har reklamationsrätt i tre år enligt konsumentköplagen om varan är felaktig. Reklamera så snart du upptäckt felet via <a href=\"/pages/kontakt\">kontaktsidan</a> – ange ordernummer och bifoga gärna bild. Vid godkänd reklamation står vi för returfrakten och skickar en ny vara, eller återbetalar köpet. Reklamationsrätten omfattar inte normalt slitage eller skador orsakade av felaktig användning.</p>" } },
+        { "type": "section", "settings": { "title": "Personuppgifter", "text": "<p>Vi behandlar dina personuppgifter för att kunna hantera din beställning, leverans och kundservice. Läs mer i vår <a href=\"/pages/personuppgiftspolicy\">personuppgiftspolicy</a>.</p>" } },
+        { "type": "section", "settings": { "title": "Tvist", "text": "<p>Vid tvist som vi inte kan lösa tillsammans följer vi Allmänna reklamationsnämndens (ARN) rekommendationer. ARN, Box 174, 101 23 Stockholm, <a href=\"https://www.arn.se\" target=\"_blank\" rel=\"noopener\">arn.se</a>. Du kan även använda EU:s plattform för tvistlösning online: <a href=\"https://ec.europa.eu/consumers/odr\" target=\"_blank\" rel=\"noopener\">ec.europa.eu/consumers/odr</a>.</p>" } },
+        { "type": "section", "settings": { "title": "Kontakt", "text": "<p>2M Interlokal AB<br>Org.nr 559356-3991<br>Ninni Kronbergs gata 20, 113 68 Stockholm<br>E-post: <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a><br>Vi svarar inom 2 arbetsdagar.</p>" } }
+      ]
+    },
+    {
+      "name": "IVA Personuppgiftspolicy",
+      "settings": { "heading": "Personuppgiftspolicy", "eyebrow": "Integritet", "text": "Hur vi hanterar dina uppgifter – kort och begripligt." },
+      "blocks": [
+        { "type": "section", "settings": { "title": "Vem ansvarar", "text": "<p>2M Interlokal AB, org.nr 559356-3991, Ninni Kronbergs gata 20, 113 68 Stockholm, är personuppgiftsansvarig för behandlingen av dina personuppgifter på ivadesign.se. Kontakta oss på <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a> vid frågor.</p>" } },
+        { "type": "section", "settings": { "title": "Vilka uppgifter vi samlar in", "text": "<p>När du handlar: namn, adress, e-post, telefonnummer, orderhistorik och betaluppgifter (betalningen hanteras av Shopify Payments och Klarna – vi ser aldrig dina kortuppgifter). När du skapar konto: e-post och namn. När du bevakar en produkt eller prenumererar på nyhetsbrev: e-post. När du besöker sajten: IP-adress, enhet och besöksdata via cookies (se nedan).</p>" } },
+        { "type": "section", "settings": { "title": "Varför vi behandlar dem", "text": "<ul><li>För att fullgöra köpavtalet: hantera beställning, betalning, leverans, retur och reklamation.</li><li>För att uppfylla lagkrav, t.ex. bokföringslagen (uppgifter sparas i 7 år).</li><li>Med ditt samtycke: nyhetsbrev och bevakning av produkter – du kan när som helst avsluta.</li><li>Med stöd av intresseavvägning: kundservice, förbättring av butiken och förebyggande av bedrägeri.</li></ul>" } },
+        { "type": "section", "settings": { "title": "Vilka vi delar uppgifter med", "text": "<p>Shopify (butiksplattform och betalning), Klarna (betalning), PostNord (leverans), Notify Me (lagerbevakning), BON Loyalty (kundklubb och poäng), Pandectes (hantering av cookie-samtycke) samt e-postleverantör för orderbekräftelser och nyhetsbrev. Alla är personuppgiftsbiträden eller självständigt ansvariga enligt avtal, och behandlar bara uppgifterna för sitt ändamål. Vi säljer aldrig dina uppgifter.</p>" } },
+        { "type": "section", "settings": { "title": "Hur länge vi sparar", "text": "<p>Orderuppgifter sparas så länge lagen kräver (bokföring, 7 år). Kontouppgifter sparas tills du ber oss radera kontot. Nyhetsbrev och bevakningar tills du avslutar dem. Besöksdata enligt cookie-inställningarna nedan.</p>" } },
+        { "type": "section", "settings": { "title": "Cookies", "text": "<p>Vi använder nödvändiga cookies för att butiken ska fungera (varukorg, inloggning) samt, med ditt samtycke, cookies för statistik och marknadsföring. Du väljer själv i cookie-rutan vid första besöket och kan ändra dig när som helst via länken i sidfoten.</p>" } },
+        { "type": "section", "settings": { "title": "Dina rättigheter", "text": "<p>Du har rätt att få tillgång till dina uppgifter, få dem rättade eller raderade, begränsa behandlingen, invända mot behandling och få ut dina uppgifter (dataportabilitet). Mejla <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a> så hjälper vi dig inom 30 dagar. Är du missnöjd med hur vi hanterar dina uppgifter kan du klaga hos Integritetsskyddsmyndigheten (IMY), <a href=\"https://www.imy.se\" target=\"_blank\" rel=\"noopener\">imy.se</a>.</p>" } },
+        { "type": "section", "settings": { "title": "Ändringar", "text": "<p>Vi kan uppdatera denna policy. Den senaste versionen finns alltid här, med datum längst ner.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,70 @@
+{%- comment -%}
+  IVA – 404 (sections/iva-404.liquid). Används av templates/404.json.
+{%- endcomment -%}
+
+<section class="iv404">
+  <div class="iv404-inner">
+    <p class="iv404-eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1>{{ section.settings.heading }}</h1>
+    <p class="iv404-text">{{ section.settings.text }}</p>
+
+    <form class="iv404-search" action="{{ routes.search_url }}" method="get" role="search">
+      <label for="iv404q" class="iv404-sr">Sök</label>
+      <input type="search" id="iv404q" name="q" placeholder="Sök efter skal, modell eller färg…" autocomplete="off">
+      <button type="submit" aria-label="Sök"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    </form>
+
+    <div class="iv404-actions">
+      <a class="iv404-btn" href="{{ section.settings.btn_link | default: '/collections/all' }}">{{ section.settings.btn_label }}</a>
+      <a class="iv404-btn iv404-btn--ghost" href="{{ routes.root_url }}">Till startsidan</a>
+    </div>
+
+    <ul class="iv404-links">
+      <li><a href="/pages/hjalpcenter">Hjälpcenter</a></li>
+      <li><a href="/pages/spara-order">Spåra min order</a></li>
+      <li><a href="/pages/kontakt">Kontakta oss</a></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .iv404 { background: #faf6f0; color: #1D1D1F; padding: 4rem 1.25rem 5rem; margin-bottom: -2px; min-height: 60vh; display: flex; align-items: center; }
+  .iv404 * { box-sizing: border-box; }
+  .iv404-inner { max-width: 560px; margin: 0 auto; text-align: center; width: 100%; }
+  .iv404-eyebrow { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .8rem; }
+  .iv404 h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.4rem, 5vw, 3.6rem); margin: 0 0 .9rem; color: #1D1D1F !important; line-height: 1.1; }
+  .iv404-text { color: rgba(29,29,31,.65); line-height: 1.65; margin: 0 auto 1.8rem; max-width: 420px; }
+  .iv404-search { display: flex; background: #fff; border: 1px solid rgba(29,29,31,.12); border-radius: 50px; padding: .3rem .3rem .3rem 1.2rem; margin: 0 auto 1.4rem; max-width: 440px; transition: border-color .2s; }
+  .iv404-search:focus-within { border-color: #1D1D1F; }
+  .iv404-search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: .95rem; color: #1D1D1F; outline: none; }
+  .iv404-search button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: #1D1D1F; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: none; }
+  .iv404-search svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .iv404-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .iv404-actions { display: flex; flex-direction: column; gap: .6rem; align-items: center; }
+  .iv404-btn { display: inline-flex; align-items: center; justify-content: center; background: #1D1D1F; color: #fff !important; border: 1.5px solid #1D1D1F; border-radius: 50px; padding: 1rem 2rem; font-size: .68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; width: 100%; max-width: 300px; transition: transform .2s, box-shadow .2s, background .2s; }
+  .iv404-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.16); }
+  .iv404-btn--ghost { background: transparent; color: #1D1D1F !important; }
+  .iv404-btn--ghost:hover { background: #1D1D1F; color: #fff !important; }
+  .iv404-links { list-style: none; margin: 2.2rem 0 0; padding: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: .4rem 1.4rem; }
+  .iv404-links a { font-size: .82rem; color: rgba(29,29,31,.7); text-decoration: underline; text-underline-offset: 3px; }
+  .iv404-links a:hover { color: #1D1D1F; }
+  @media (min-width: 720px) {
+    .iv404 { padding: 6rem 2.5rem 7rem; }
+    .iv404-actions { flex-direction: row; justify-content: center; }
+    .iv404-btn { width: auto; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "IVA 404",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Liten rubrik", "default": "Fel 404" },
+    { "type": "text", "id": "heading", "label": "Rubrik", "default": "Hoppsan, sidan finns inte." },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Länken kan vara gammal eller felstavad. Sök efter det du letar efter, eller gå vidare till kollektionen." },
+    { "type": "text", "id": "btn_label", "label": "Knapptext", "default": "Se kollektionen" },
+    { "type": "url", "id": "btn_link", "label": "Knapplänk" }
+  ],
+  "presets": [ { "name": "IVA 404" } ]
+}
+{% endschema %}

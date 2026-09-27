@@ -1,0 +1,64 @@
+{
+  "sections": {
+    "iva_retur_pXULxc": {
+      "type": "iva-retur",
+      "blocks": {
+        "step_zthmaj": {
+          "type": "step",
+          "settings": {
+            "title": "Anmäl din retur",
+            "text": "Fyll i formuläret här på sidan inom 14 dagar från att du tog emot paketet."
+          }
+        },
+        "step_9G7gD7": {
+          "type": "step",
+          "settings": {
+            "title": "Få din QR-kod",
+            "text": "Inom 2 arbetsdagar får du ett mejl från PostNord med en QR-kod – ingen etikett att skriva ut."
+          }
+        },
+        "step_wXTzby": {
+          "type": "step",
+          "settings": {
+            "title": "Packa och lämna in",
+            "text": "Lägg varan i originalförpackningen med en lapp med ordernumret. Visa QR-koden hos närmaste PostNord-ombud, så skriver de ut etiketten. Returen går till IVA, Gustafsvägen 4, 169 58 Solna."
+          }
+        },
+        "step_GLaPGj": {
+          "type": "step",
+          "settings": {
+            "title": "Få pengarna tillbaka",
+            "text": "När returen kommit fram återbetalar vi inom 14 dagar till samma betalsätt som du använde. Returfrakten 49 kr dras av."
+          }
+        }
+      },
+      "block_order": [
+        "step_zthmaj",
+        "step_9G7gD7",
+        "step_wXTzby",
+        "step_GLaPGj"
+      ],
+      "name": "IVA Ångra & retur",
+      "settings": {
+        "eyebrow": "Ångra & retur",
+        "heading": "Inte helt nöjd? Inga problem.",
+        "intro": "Du har 14 dagars ångerrätt på allt hos IVA. Anmäl din retur här så skickar vi en QR-kod som du visar hos närmaste PostNord-ombud – ingen skrivare behövs.",
+        "fact1_value": "14 dagar",
+        "fact1_label": "ångerrätt",
+        "fact2_value": "49 kr",
+        "fact2_label": "returfrakt",
+        "fact3_value": "14 dagar",
+        "fact3_label": "till återbetalning",
+        "fact4_value": "3 år",
+        "fact4_label": "reklamationsrätt",
+        "rules": "<ul><li>Varan ska vara oanvänd och i originalskick. Du får såklart prova skalet på telefonen.</li><li>Returadress: IVA design / 2M Interlokal AB, Gustafsvägen 4, 169 58 Solna – den står redan på etiketten du får via QR-koden.</li><li>Returfrakten (49 kr) dras av från återbetalningen. Vid fel vara eller skada står vi för frakten.</li><li>Vi återbetalar till samma betalsätt inom 14 dagar efter att vi tagit emot returen.</li><li>Ej uthämtade paket räknas inte som retur – då debiteras 99 kr för frakt och hantering.</li></ul>",
+        "claim_txt": "Är varan skadad eller fungerar inte som den ska har du reklamationsrätt i 3 år. Fyll i formuläret, välj ”Varan är skadad eller trasig” och beskriv felet så återkommer vi inom 2 arbetsdagar. Vi står för returfrakten.",
+        "form_heading": "Anmäl retur",
+        "form_text": "Fyll i uppgifterna så återkommer vi inom 2 arbetsdagar med en QR-kod för returfrakten."
+      }
+    }
+  },
+  "order": [
+    "iva_retur_pXULxc"
+  ]
+}

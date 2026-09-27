@@ -1,0 +1,81 @@
+{%- comment -%}
+  IVA – Favoriter
+  Visar produkter som besökaren hjärtat på produktsidan (sparas i webbläsarens localStorage, nyckel "iva_wishlist").
+  Lägg sektionen på en sida med handle "favoriter" (/pages/favoriter).
+{%- endcomment -%}
+
+<section class="ivf">
+  <div class="ivf-inner">
+    <p class="ivf-eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 class="ivf-title">{{ section.settings.heading }}</h1>
+
+    <div class="ivf-grid" id="ivfGrid" hidden></div>
+
+    <div class="ivf-empty" id="ivfEmpty" hidden>
+      <p>{{ section.settings.empty_text }}</p>
+      <a class="ivf-btn" href="{{ section.settings.empty_link | default: '/collections/all' }}">{{ section.settings.empty_label }}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ivf { background: #faf6f0; color: #1D1D1F; padding: 3rem 1.25rem 5rem; margin-bottom: -2px; }
+  .ivf-inner { max-width: 1240px; margin: 0 auto; }
+  .ivf-eyebrow { font-size: .68rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.6); margin: 0 0 .5rem; text-align: center; }
+  .ivf-title { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0 0 2rem; text-align: center; color: #1D1D1F !important; }
+  .ivf-grid[hidden], .ivf-empty[hidden] { display: none !important; }
+  .ivf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+  .ivf-card { position: relative; background: #f3ecdf; border-radius: 14px; overflow: hidden; display: block; color: inherit; text-decoration: none; }
+  .ivf-card-img { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ivf-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+  .ivf-card:hover .ivf-card-img img { transform: scale(1.04); }
+  .ivf-card-info { padding: .9rem 1rem 1.1rem; }
+  .ivf-card-info b { display: block; font-weight: 600; font-size: .9rem; }
+  .ivf-card-info span { font-size: .85rem; color: rgba(29,29,31,.7); }
+  .ivf-remove { position: absolute; top: .7rem; right: .7rem; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fff; color: #1D1D1F; box-shadow: 0 2px 10px rgba(29,29,31,.14); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+  .ivf-empty { text-align: center; padding: 3rem 0; }
+  .ivf-empty p { color: rgba(29,29,31,.7); margin: 0 0 1.4rem; }
+  .ivf-btn { display: inline-block; background: #1D1D1F; color: #fff; text-decoration: none; border-radius: 50px; padding: .95rem 2rem; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+  @media (min-width: 640px) { .ivf { padding: 4rem 2rem 6rem; } .ivf-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+  @media (min-width: 1000px) { .ivf-grid { grid-template-columns: repeat(4, 1fr); } }
+</style>
+
+<script>
+  (function(){
+    var KEY='iva_wishlist', grid=document.getElementById('ivfGrid'), empty=document.getElementById('ivfEmpty');
+    function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+    function save(l){ try{ localStorage.setItem(KEY, JSON.stringify(l)); }catch(e){} window.dispatchEvent(new CustomEvent('iva:wishlist')); }
+    function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    function render(){
+      var list=load();
+      if(!list.length){ grid.innerHTML=''; grid.hidden=true; empty.hidden=false; return; }
+      grid.innerHTML=list.map(function(i){
+        return '<a class="ivf-card" href="'+esc(i.url)+'">'+
+          '<div class="ivf-card-img"><img src="'+esc(i.img)+'" alt="'+esc(i.title)+'" loading="lazy"></div>'+
+          '<div class="ivf-card-info"><b>'+esc(i.title)+'</b><span>'+esc(i.price)+'</span></div>'+
+          '<button type="button" class="ivf-remove" data-handle="'+esc(i.handle)+'" aria-label="Ta bort">×</button></a>';
+      }).join('');
+      grid.hidden=false; empty.hidden=true;
+    }
+    grid.addEventListener('click',function(e){
+      var b=e.target.closest('.ivf-remove'); if(!b) return;
+      e.preventDefault(); var h=b.getAttribute('data-handle');
+      save(load().filter(function(i){return i.handle!==h;})); render();
+    });
+    render();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Favoriter",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Liten rubrik", "default": "Sparade produkter" },
+    { "type": "text", "id": "heading", "label": "Rubrik", "default": "Mina favoriter" },
+    { "type": "text", "id": "empty_text", "label": "Text när listan är tom", "default": "Du har inga sparade favoriter ännu. Tryck på hjärtat på en produkt för att spara den här." },
+    { "type": "text", "id": "empty_label", "label": "Knapptext", "default": "Se kollektionen" },
+    { "type": "url", "id": "empty_link", "label": "Knapplänk" }
+  ],
+  "presets": [ { "name": "IVA Favoriter" } ]
+}
+{% endschema %}

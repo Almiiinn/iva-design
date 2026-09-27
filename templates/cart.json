@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "iva-varukorg", "settings": {} }
+  },
+  "order": ["main"]
+}

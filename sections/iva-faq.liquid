@@ -1,0 +1,177 @@
+{%- comment -%}
+  IVA – Hjälpcenter / FAQ (sections/iva-faq.liquid). Sida: /pages/hjalpcenter (mall "hjalpcenter").
+  Block: "Kategori" (rubrik + ankare) och "Fråga" (fråga + svar). Frågor hör till närmast föregående kategori.
+  Ankare: /pages/hjalpcenter#betalning, #leverans, #retur, #produkter, #konto
+{%- endcomment -%}
+
+<section class="ivfaq">
+  <div class="ivfaq-inner">
+    <div class="ivfaq-head">
+      <p class="ivfaq-eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1>{{ section.settings.heading }}</h1>
+      {%- if section.settings.text != blank -%}<p class="ivfaq-lead">{{ section.settings.text }}</p>{%- endif -%}
+    </div>
+
+    <div class="ivfaq-search">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="ivfaqSearch" placeholder="{{ section.settings.search_placeholder }}" autocomplete="off">
+    </div>
+
+    <div class="ivfaq-cats" id="ivfaqCats">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'category' -%}
+          <a href="#{{ block.settings.anchor | handleize }}">{{ block.settings.title }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="ivfaq-list" id="ivfaqList">
+      {%- assign first_open = true -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'category' -%}
+          <h2 id="{{ block.settings.anchor | handleize }}" class="ivfaq-cat" {{ block.shopify_attributes }}>{{ block.settings.title }}</h2>
+        {%- elsif block.type == 'question' -%}
+          <details class="ivfaq-q"{% if first_open and section.settings.open_first %} open{% endif %} {{ block.shopify_attributes }}>
+            <summary>{{ block.settings.q }}</summary>
+            <div class="ivfaq-a">{{ block.settings.a }}</div>
+          </details>
+          {%- assign first_open = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+      <p class="ivfaq-none" id="ivfaqNone" hidden>Inga träffar – prova ett annat ord eller kontakta oss.</p>
+    </div>
+
+    <div class="ivfaq-help">
+      <h3>{{ section.settings.help_heading }}</h3>
+      <p>{{ section.settings.help_text }}</p>
+      <a class="ivfaq-btn" href="{{ section.settings.help_link | default: '/pages/kontakt' }}">{{ section.settings.help_label }}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ivfaq { background: #faf6f0; color: #1D1D1F; padding: 3rem 1.25rem 5rem; margin-bottom: -2px; }
+  .ivfaq * { box-sizing: border-box; }
+  .ivfaq-inner { max-width: 760px; margin: 0 auto; }
+  .ivfaq-head { text-align: center; margin-bottom: 2rem; }
+  .ivfaq-eyebrow { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .6rem; }
+  .ivfaq h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.4rem, 5vw, 3.6rem); margin: 0 0 .6rem; color: #1D1D1F !important; line-height: 1.1; }
+  .ivfaq-lead { color: rgba(29,29,31,.65); margin: 0 auto; max-width: 520px; }
+  .ivfaq-search { display: flex; align-items: center; gap: .8rem; background: #fff; border: 1px solid rgba(29,29,31,.12); border-radius: 50px; padding: .35rem .6rem .35rem 1.3rem; margin-bottom: 1.4rem; color: rgba(29,29,31,.6); }
+  .ivfaq-search input { flex: 1; border: 0; background: transparent; padding: .75rem 0; font: inherit; font-size: .95rem; color: #1D1D1F; outline: none; }
+  .ivfaq-cats { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 2.5rem; }
+  .ivfaq-cats a { font-size: .68rem; letter-spacing: 1.5px; text-transform: uppercase; padding: .55rem 1.1rem; border: 1px solid rgba(29,29,31,.12); border-radius: 50px; background: #f7f3eb; color: inherit; text-decoration: none; transition: background .2s, color .2s; }
+  .ivfaq-cats a:hover { background: #1D1D1F; color: #fff; border-color: #1D1D1F; }
+  .ivfaq-cat { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.7rem; margin: 2.6rem 0 .4rem; scroll-margin-top: 110px; color: #1D1D1F !important; }
+  .ivfaq-cat:first-child { margin-top: 0; }
+  .ivfaq-q { border-bottom: 1px solid rgba(29,29,31,.1); padding: 1.05rem 0; }
+  .ivfaq-q summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 1rem; font-size: .95rem; }
+  .ivfaq-q summary::-webkit-details-marker { display: none; }
+  .ivfaq-q summary::after { content: '+'; font-weight: 300; font-size: 1.4rem; line-height: 1; flex: 0 0 auto; }
+  .ivfaq-q[open] summary::after { content: '–'; }
+  .ivfaq-a { color: rgba(29,29,31,.7); margin-top: .7rem; max-width: 620px; font-size: .92rem; line-height: 1.65; }
+  .ivfaq-a p { margin: 0 0 .6rem; } .ivfaq-a p:last-child { margin-bottom: 0; }
+  .ivfaq-a a { color: #1D1D1F; text-decoration: underline; }
+  .ivfaq-q.is-hidden, .ivfaq-cat.is-hidden { display: none; }
+  .ivfaq-none { text-align: center; color: rgba(29,29,31,.6); padding: 2rem 0; }
+  .ivfaq-help { text-align: center; background: #f7f3eb; border: 1px solid rgba(29,29,31,.09); border-radius: 18px; padding: 2.4rem 1.5rem; margin-top: 3.5rem; }
+  .ivfaq-help h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.7rem; margin: 0 0 .4rem; color: #1D1D1F !important; }
+  .ivfaq-help p { color: rgba(29,29,31,.65); margin: 0 0 1.3rem; }
+  .ivfaq-btn { display: inline-flex; align-items: center; background: #1D1D1F; color: #fff !important; border-radius: 50px; padding: .95rem 1.8rem; font-size: .68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+  .ivfaq-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.16); }
+  @media (min-width: 860px) { .ivfaq { padding: 4.5rem 2.5rem 6rem; } }
+</style>
+
+<script>
+  (function () {
+    var inp = document.getElementById('ivfaqSearch'), list = document.getElementById('ivfaqList'), none = document.getElementById('ivfaqNone');
+    if (!inp) return;
+    var qs = Array.prototype.slice.call(list.querySelectorAll('.ivfaq-q')), cats = Array.prototype.slice.call(list.querySelectorAll('.ivfaq-cat'));
+    inp.addEventListener('input', function () {
+      var t = inp.value.trim().toLowerCase(), hits = 0;
+      qs.forEach(function (q) { var hit = !t || q.textContent.toLowerCase().indexOf(t) > -1; q.classList.toggle('is-hidden', !hit); if (hit) hits++; if (t && hit) q.open = true; });
+      cats.forEach(function (c) {
+        var el = c.nextElementSibling, any = false;
+        while (el && !el.classList.contains('ivfaq-cat')) { if (el.classList.contains('ivfaq-q') && !el.classList.contains('is-hidden')) any = true; el = el.nextElementSibling; }
+        c.classList.toggle('is-hidden', !any && !!t);
+      });
+      none.hidden = hits > 0;
+    });
+    /* öppna fråga om man kommer via #ankare + scrolla */
+    if (location.hash) { var el = document.querySelector(location.hash); if (el) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100); }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Hjälpcenter",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Liten rubrik", "default": "Hjälpcenter" },
+    { "type": "text", "id": "heading", "label": "Rubrik", "default": "Hur kan vi hjälpa dig?" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Svar på det mesta – från betalning och leverans till passform." },
+    { "type": "text", "id": "search_placeholder", "label": "Sökfältets text", "default": "Sök bland vanliga frågor…" },
+    { "type": "checkbox", "id": "open_first", "label": "Första frågan öppen", "default": true },
+    { "type": "header", "content": "Ruta längst ner" },
+    { "type": "text", "id": "help_heading", "label": "Rubrik", "default": "Hittade du inte svaret?" },
+    { "type": "text", "id": "help_text", "label": "Text", "default": "Vi svarar inom 2 arbetsdagar." },
+    { "type": "text", "id": "help_label", "label": "Knapptext", "default": "Kontakta oss" },
+    { "type": "url", "id": "help_link", "label": "Knapplänk" }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Kategori",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Rubrik", "default": "Beställning & betalning" },
+        { "type": "text", "id": "anchor", "label": "Ankare (för länkar, t.ex. betalning)", "default": "betalning", "info": "Länka hit med /pages/hjalpcenter#betalning" }
+      ]
+    },
+    {
+      "type": "question",
+      "name": "Fråga",
+      "settings": [
+        { "type": "text", "id": "q", "label": "Fråga", "default": "Vilka betalsätt kan jag använda?" },
+        { "type": "richtext", "id": "a", "label": "Svar", "default": "<p>Vi tar emot Klarna (faktura, delbetalning och direktbetalning), Visa, Mastercard, Apple Pay och Google Pay. Alla betalningar är krypterade och sköts av Shopify Payments och Klarna.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Hjälpcenter",
+      "blocks": [
+        { "type": "category", "settings": { "title": "Beställning & betalning", "anchor": "betalning" } },
+        { "type": "question", "settings": { "q": "Vilka betalsätt kan jag använda?", "a": "<p>Vi tar emot Klarna (faktura, delbetalning och direktbetalning), Visa, Mastercard, Apple Pay och Google Pay. Alla betalningar är krypterade och sköts av Shopify Payments och Klarna.</p>" } },
+        { "type": "question", "settings": { "q": "Kan jag delbetala?", "a": "<p>Ja. Välj Klarna i kassan så kan du dela upp betalningen eller betala inom 30 dagar. Villkoren visas innan du bekräftar köpet.</p>" } },
+        { "type": "question", "settings": { "q": "Är priserna inklusive moms?", "a": "<p>Ja, alla priser i butiken är inklusive 25 % moms. Inga extra avgifter tillkommer i kassan utöver eventuell frakt.</p>" } },
+        { "type": "question", "settings": { "q": "Kan jag ändra eller avbryta min order?", "a": "<p>Kontakta oss så snart som möjligt via <a href=\"/pages/kontakt\">kontaktsidan</a> och ange ditt ordernummer. Har ordern inte packats ändrar vi den. Har den redan skickats kan du använda 30 dagars öppet köp.</p>" } },
+        { "type": "question", "settings": { "q": "Får jag en orderbekräftelse?", "a": "<p>Ja, direkt till den e-post du angav i kassan. Kommer den inte inom några minuter, kolla skräpposten.</p>" } },
+
+        { "type": "category", "settings": { "title": "Frakt & leverans", "anchor": "leverans" } },
+        { "type": "question", "settings": { "q": "Hur lång är leveranstiden?", "a": "<p>1–5 vardagar inom Sverige. Paketet levereras direkt i din brevlåda med PostNord, spårbart hela vägen.</p>" } },
+        { "type": "question", "settings": { "q": "Vad kostar frakten?", "a": "<p>Frakten kostar 45 kr per order, oavsett hur många skal du beställer.</p>" } },
+        { "type": "question", "settings": { "q": "Vilka fraktbolag använder ni?", "a": "<p>Vi skickar med PostNord. Du väljer själv i kassan om du vill hämta hos ombud, i paketbox eller få hemleverans.</p>" } },
+        { "type": "question", "settings": { "q": "Kan jag spåra mitt paket?", "a": "<p>Ja. När paketet skickats får du ett mejl med spårningslänk. Du hittar den även under <a href=\"/pages/mitt-konto\">Mitt konto</a>.</p>" } },
+        { "type": "question", "settings": { "q": "Skickar ni utanför Sverige?", "a": "<p>Just nu levererar vi inom Sverige. Fler länder är på gång – följ oss på Instagram för nyheter.</p>" } },
+
+        { "type": "category", "settings": { "title": "Retur & byte", "anchor": "retur" } },
+        { "type": "question", "settings": { "q": "Hur returnerar jag?", "a": "<p>Du har 14 dagars ångerrätt. Gå till <a href=\"/pages/retur\">Ångra & retur</a> och fyll i formuläret. Inom 2 arbetsdagar får du en QR-kod från PostNord – visa den hos närmaste ombud så skriver de ut etiketten. Returfrakten 49 kr dras av från återbetalningen.</p>" } },
+        { "type": "question", "settings": { "q": "Vad kostar returen?", "a": "<p>Returfrakten är 49 kr och dras av från återbetalningen. Vid byte till annan modell eller färg står vi för frakten.</p>" } },
+        { "type": "question", "settings": { "q": "När får jag pengarna tillbaka?", "a": "<p>Inom 5 vardagar efter att vi tagit emot returen. Betalade du med Klarna justeras fakturan automatiskt.</p>" } },
+        { "type": "question", "settings": { "q": "Kan jag byta till en annan färg eller modell?", "a": "<p>Ja. Ange önskad färg och modell i returformuläret så skickar vi det nya skalet så snart returen registrerats.</p>" } },
+        { "type": "question", "settings": { "q": "Skalet är skadat eller fel – vad gör jag?", "a": "<p>Hör av dig via <a href=\"/pages/kontakt\">kontaktsidan</a> med ordernummer och en bild, så löser vi det direkt – oftast med ett nytt skal utan kostnad.</p>" } },
+
+        { "type": "category", "settings": { "title": "Produkter & passform", "anchor": "produkter" } },
+        { "type": "question", "settings": { "q": "Passar skalet min iPhone-modell?", "a": "<p>Varje skal är gjort för en specifik modell. Välj din modell på produktsidan – vi visar bara bilder och varianter som passar din telefon.</p>" } },
+        { "type": "question", "settings": { "q": "Fungerar MagSafe genom skalet?", "a": "<p>Ja, Silicone Case Magsafe har inbyggd magnetring för trådlös laddning och MagSafe-tillbehör. Övriga skal fungerar med vanlig trådlös laddning.</p>" } },
+        { "type": "question", "settings": { "q": "Vilka AirPods passar i AirPods Holder Case?", "a": "<p>AirPods 4-laddningsfodral. Se produktsidan för exakt kompatibilitet.</p>" } },
+        { "type": "question", "settings": { "q": "Hur rengör jag skalet?", "a": "<p>Torka av med en mjuk, lätt fuktad trasa och milt diskmedel. Undvik alkohol och starka rengöringsmedel – silikonet mår bäst utan.</p>" } },
+        { "type": "question", "settings": { "q": "En modell är slut – när kommer den?", "a": "<p>Klicka på <b>Meddela mig</b> på produktsidan så mejlar vi dig automatiskt samma sekund modellen är tillbaka i lager.</p>" } },
+
+        { "type": "category", "settings": { "title": "Konto", "anchor": "konto" } },
+        { "type": "question", "settings": { "q": "Behöver jag ett konto för att handla?", "a": "<p>Nej, du kan handla som gäst. Med konto ser du dina ordrar, sparar favoriter och kan bevaka produkter som är slut.</p>" } },
+        { "type": "question", "settings": { "q": "Hur loggar jag in?", "a": "<p>Klicka på kontoikonen uppe till höger, ange din e-post och skriv in engångskoden vi mejlar. Inget lösenord behövs.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,180 @@
+{% comment %} IVA Footer {% endcomment %}
+
+<footer class="iva-footer">
+  <div class="footer-main">
+
+    <div class="footer-brand">
+      <div class="footer-brand-info">
+        <span class="footer-logo">IVA.</span>
+        <p class="footer-company">2M Interlokal AB</p>
+        <p class="footer-org">Org. 559356-3991</p>
+      </div>
+      <div class="footer-payments">
+        <div class="payment-badge">
+          <svg viewBox="0 0 38 24" width="38" height="24"><rect width="38" height="24" rx="4" fill="#1A1F71"/><text x="19" y="16" text-anchor="middle" fill="white" font-size="8" font-family="Arial" font-weight="bold">VISA</text></svg>
+        </div>
+        <div class="payment-badge">
+          <svg viewBox="0 0 38 24" width="38" height="24"><rect width="38" height="24" rx="4" fill="#EB001B"/><circle cx="15" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M19 6.8a7 7 0 0 1 0 10.4A7 7 0 0 1 19 6.8z" fill="#FF5F00"/></svg>
+        </div>
+        <div class="payment-badge">
+          <svg viewBox="0 0 38 24" width="38" height="24"><rect width="38" height="24" rx="4" fill="#FFB3C7"/><text x="19" y="16" text-anchor="middle" fill="#17120F" font-size="7" font-family="Arial" font-weight="bold">KLARNA</text></svg>
+        </div>
+      </div>
+    </div><!-- /.footer-brand -->
+
+    <div class="footer-col">
+      <h4 class="footer-col-title">Produkter</h4>
+      <a href="{{ routes.all_products_collection_url }}">Mobilskal</a>
+      <a href="{{ routes.collections_url }}/types?q=AIRPODS%20HOLDER%20CASE%20-%20Silicone">Airpodsfodral</a>
+      <a href="{{ routes.collections_url }}/types?q=LIP%20HOLDER%20CASE">Läppglans fodral</a>
+      <a href="{{ routes.collections_url }}/types?q=Perfume%20Holder%20Case">Perfume Dispenser</a>
+      <a href="/pages/favoriter" class="footer-fav">Mina favoriter<span id="footerFavCount"></span></a>
+    </div>
+
+    <div class="footer-col">
+      <h4 class="footer-col-title">Kundtjänst</h4>
+      <a href="/pages/hjalpcenter">Hjälpcenter</a>
+      <a href="/pages/hjalpcenter#betalning">Betalning</a>
+      <a href="/pages/spara-order">Spåra min order</a>
+      <a href="/pages/retur">Returer</a>
+      <a href="/pages/kontakt">Kontakta oss</a>
+    </div>
+
+    <div class="footer-col">
+      <h4 class="footer-col-title">Information</h4>
+      <a href="/pages/om-oss">Om oss</a>
+      <a href="/pages/personuppgiftspolicy">Personuppgiftspolicy</a>
+      <a href="/pages/allmanna-villkor">Allmänna villkor</a>
+      <a href="#" id="ivaCookieReset">Cookieinställningar</a>
+    </div>
+
+    <div class="footer-col">
+      <h4 class="footer-col-title">Erbjudanden</h4>
+      <p class="footer-newsletter-desc">Fyll i din e-postadress för att ta del av exklusiva erbjudanden.</p>
+      {%- form 'customer', id: 'footerNewsletter', class: 'footer-newsletter-form' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="footer-newsletter-ok">Tack! Du är nu anmäld till våra erbjudanden.</p>
+        {%- else -%}
+          {%- if form.errors -%}
+            <p class="footer-newsletter-err">Kontrollera att e-postadressen är korrekt.</p>
+          {%- endif -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <div class="footer-newsletter">
+            <label for="footerEmail" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">E-postadress</label>
+            <input type="email" id="footerEmail" name="contact[email]" placeholder="Din e-postadress" class="footer-email-input" required autocomplete="email" />
+            <button type="submit" class="footer-email-btn" aria-label="Anmäl dig">→</button>
+          </div>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+
+  </div>
+
+  <div class="footer-divider"></div>
+
+  <div class="footer-bottom">
+    <span class="footer-legal">© 2026 2M Interlokal AB · Alla rättigheter förbehållna</span>
+    <span class="footer-legal">ivadesign.se</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var c = document.getElementById('ivaCookieReset');
+    if (c) c.addEventListener('click', function (e) {
+      e.preventDefault();
+      var host = location.hostname, names = ['_pandectes_gdpr', '_pandectes_gdpr_v2'];
+      names.forEach(function (n) {
+        document.cookie = n + '=; Max-Age=0; path=/';
+        document.cookie = n + '=; Max-Age=0; path=/; domain=' + host;
+        document.cookie = n + '=; Max-Age=0; path=/; domain=.' + host.replace(/^www\./, '');
+      });
+      try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('pandectes') > -1) localStorage.removeItem(k); }); } catch (err) {}
+      location.reload();
+    });
+  })();
+  (function () {
+    var el = document.getElementById('footerFavCount'); if (!el) return;
+    function update() {
+      var n = 0;
+      try { n = (JSON.parse(localStorage.getItem('iva_wishlist') || '[]')).length; } catch (e) {}
+      el.textContent = n > 0 ? ' (' + n + ')' : '';
+    }
+    update();
+    window.addEventListener('storage', update);
+    window.addEventListener('iva:wishlist', update);
+    document.addEventListener('click', function () { setTimeout(update, 50); }, true);
+  })();
+</script>
+
+{% stylesheet %}
+  .iva-footer { background: linear-gradient(180deg, #faf6f0 0%, #ffffff 100%); padding: 1rem 3.5rem 1.25rem; border-top: none; }
+  .footer-main { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr; gap: 2rem; margin-bottom: 1.75rem; }
+  .footer-logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2rem; font-weight: 400; letter-spacing: 2px; display: block; margin-bottom: .6rem; }
+  .footer-company { font-size: .72rem; font-weight: 300; color: #2C2820; letter-spacing: 1px; margin-bottom: .25rem; }
+  .footer-org { font-size: .65rem; font-weight: 300; color: #8a8a8a; letter-spacing: 1px; margin-bottom: 1rem; }
+  .footer-brand-info { display: flex; flex-direction: column; }
+  .footer-payments { display: flex; gap: .75rem; align-items: center; }
+  .payment-badge { border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; display: flex; align-items: center; }
+  .footer-col { display: flex; flex-direction: column; gap: .5rem; }
+  .footer-col-title { font-size: .8rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #2C2820; margin-bottom: .35rem; }
+  .footer-col a { font-size: .85rem; font-weight: 300; color: #6B6258; text-decoration: none; letter-spacing: .5px; transition: color .2s; }
+  .footer-col a:hover { color: #1a1a1a; }
+  .footer-newsletter-desc { font-size: .82rem; font-weight: 300; color: #6B6258; line-height: 1.6; margin-bottom: .6rem; }
+  .footer-newsletter { display: flex; }
+  .footer-newsletter-ok { font-size: .82rem; color: #2C2820; margin: 0; }
+  .footer-newsletter-err { font-size: .75rem; color: #8e2a1f; margin: 0 0 .4rem; }
+  .footer-email-input { flex: 1; background: transparent; border: 1px solid rgba(0,0,0,0.15); border-right: none; padding: .6rem 1rem; font-size: .65rem; font-family: 'Jost', sans-serif; color: #1a1a1a; outline: none; }
+  .footer-email-input::placeholder { color: #8a8a8a; }
+  .footer-email-btn { background: #1C2B3A; color: #f4f9fd; border: none; padding: .6rem 1rem; font-size: .9rem; cursor: pointer; transition: opacity .2s; }
+  .footer-email-btn:hover { opacity: .75; }
+  .footer-divider { height: 1px; background: rgba(0,0,0,0.08); margin-bottom: 1rem; }
+  .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+  .footer-legal { font-size: .6rem; font-weight: 300; letter-spacing: 1.5px; color: #8a8a8a; }
+
+  @media (max-width: 768px) {
+    .iva-footer { padding: 1rem 1.5rem 1.25rem; }
+    .footer-main {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem 2rem;
+    }
+    /* Brand spänner hela bredden men logo/info till vänster, badges till höger */
+    .footer-brand {
+      grid-column: 1 / -1;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-brand-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .footer-payments {
+      align-items: center;
+      flex-direction: row;
+      gap: .5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .footer-col:last-child {
+      grid-column: 1 / -1;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .footer-col { border-bottom: none; padding-bottom: 0; }
+    .footer-col a { font-size: .82rem; padding: .2rem 0; }
+    .footer-newsletter { max-width: 420px; }
+    .footer-email-input { font-size: .75rem; padding: .7rem 1rem; }
+    .footer-bottom { flex-direction: column; gap: .5rem; text-align: center; padding-top: .5rem; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "IVA Footer",
+  "settings": []
+}
+{% endschema %}

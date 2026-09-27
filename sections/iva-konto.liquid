@@ -1,0 +1,212 @@
+{%- comment -%}
+  IVA – Mitt konto (dashboard). Läggs på sidan /pages/mitt-konto (mall "mitt-konto").
+  Fungerar med Shopifys nya kundkonton: inloggning sker hos Shopify, sedan visas denna sida i temat.
+{%- endcomment -%}
+{% render 'iva-konto-style' %}
+{%- unless customer -%}
+  {%- assign login_url = '/customer_authentication/login?return_to=%2Fpages%2Fmitt-konto' -%}
+  <section class="ivk-gate{% if section.settings.gate_image %} ivk-gate--img{% endif %}">
+    {%- if section.settings.gate_image -%}
+      <img class="ivk-gate-bg" src="{{ section.settings.gate_image | image_url: width: 2400 }}"
+        srcset="{{ section.settings.gate_image | image_url: width: 1000 }} 1000w, {{ section.settings.gate_image | image_url: width: 1800 }} 1800w, {{ section.settings.gate_image | image_url: width: 2400 }} 2400w"
+        sizes="100vw" alt="" width="2400" height="{{ 2400 | divided_by: section.settings.gate_image.aspect_ratio | round }}" loading="eager"
+        style="object-position: {{ section.settings.gate_focus }};">
+      {%- if section.settings.gate_image_mobile -%}
+        <img class="ivk-gate-bg ivk-gate-bg--mobile" src="{{ section.settings.gate_image_mobile | image_url: width: 1200 }}" alt="" width="1200" height="{{ 1200 | divided_by: section.settings.gate_image_mobile.aspect_ratio | round }}" loading="eager">
+      {%- endif -%}
+    {%- endif -%}
+    <div class="ivk-gate-shade"></div>
+    <div class="ivk-gate-card">
+      <p class="ivk-eyebrow" style="text-align:center">{{ section.settings.gate_eyebrow }}</p>
+      <h1 style="text-align:center">{{ section.settings.gate_heading }}</h1>
+      {%- if section.settings.gate_text != blank -%}<p class="ivk-small" style="text-align:center;margin:-.6rem 0 1.5rem">{{ section.settings.gate_text }}</p>{%- endif -%}
+      <a class="ivk-btn ivk-btn--wide" href="{{ login_url }}">{{ section.settings.gate_button }}</a>
+      <p class="ivk-small" style="text-align:center;margin-top:1rem">{{ section.settings.gate_note }}</p>
+    </div>
+  </section>
+  {%- unless request.design_mode -%}<script>window.location.replace({{ login_url | json }});</script>{%- endunless -%}
+  <style>
+    .ivk-gate { position: relative; min-height: calc(100vh - 110px); display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; background: #f0e6d3; margin-bottom: -2px; overflow: hidden; }
+    .ivk-gate-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .ivk-gate-bg--mobile { display: none; }
+    .ivk-gate-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(29,29,31,.10) 0%, rgba(29,29,31,.28) 100%); }
+    .ivk-gate-card { position: relative; width: 100%; max-width: 440px; background: rgba(250,246,240,.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 22px; padding: 2.4rem 2.2rem 2rem; box-shadow: 0 30px 70px rgba(29,29,31,.22); }
+    .ivk-gate-card h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.2rem, 4vw, 2.9rem); margin: 0 0 1.2rem; color: #1D1D1F !important; line-height: 1.1; }
+    .ivk-gate-card .ivk-eyebrow { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .6rem; }
+    .ivk-gate-card .ivk-small { font-size: .85rem; color: rgba(29,29,31,.7); line-height: 1.55; margin: 0; }
+    .ivk-gate-card .ivk-btn { display: flex; justify-content: center; background: #1D1D1F; color: #fff !important; border-radius: 50px; padding: 1.05rem 1.8rem; font-size: .68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+    .ivk-gate-card .ivk-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+    @media (max-width: 768px) {
+      .ivk-gate { min-height: calc(100vh - 90px); padding: 1.5rem 1rem; }
+      .ivk-gate-card { padding: 2rem 1.5rem 1.6rem; }
+      .ivk-gate-bg--mobile { display: block; }
+      .ivk-gate-bg:has(+ .ivk-gate-bg--mobile) { display: none; }
+    }
+  </style>
+{%- else -%}
+
+{%- assign active_orders = 0 -%}
+{%- for o in customer.orders -%}
+  {%- if o.cancelled == false and o.fulfillment_status != 'fulfilled' -%}{%- assign active_orders = active_orders | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+{%- assign last_order = customer.orders.first -%}
+
+<section class="ivk">
+  <div class="ivk-wrap ivk-acc">
+    <header class="ivk-hello">
+      <p class="ivk-eyebrow">Välkommen tillbaka</p>
+      <h1>Hej {{ customer.first_name | default: 'där' }} <span aria-hidden="true" style="font-family:system-ui">👋</span></h1>
+    </header>
+
+    {% render 'iva-konto-meny', active: 'oversikt' %}
+
+    <main class="ivk-main">
+
+      <div class="ivk-kp">
+        <div class="ivk-card ivk-k"><span>Aktiva ordrar</span><b>{{ active_orders }}</b></div>
+        <div class="ivk-card ivk-k"><span>Totalt beställt</span><b>{{ customer.orders_count }}</b></div>
+        {%- if section.settings.points_enable -%}
+          <div class="ivk-card ivk-k ivk-k--points">
+            <span>IVA-poäng</span>
+            <b id="ivkBonPts">–</b>
+            <em>{{ section.settings.points_note }}</em>
+            <button type="button" class="ivk-btn ivk-btn--sm" id="ivkBonOpen" style="margin-top:.7rem">Lös in poäng →</button>
+          </div>
+        {%- else -%}
+          <div class="ivk-card ivk-k"><span>Totalt handlat</span><b>{{ customer.total_spent | money_without_trailing_zeros }}</b></div>
+        {%- endif -%}
+      </div>
+
+      <script>
+        (function(){
+          var btn=document.getElementById('ivkBonOpen'), pts=document.getElementById('ivkBonPts');
+          function launcher(){
+            return document.querySelector('#bon-loyalty-widget-launcher, .bon-launcher, [id*="bon"][id*="launcher"], [class*="bon"][class*="launcher"], [id*="bon-widget"] button, [class*="bon-floating"]');
+          }
+          function tryBalance(){
+            var el=document.querySelector('[class*="bon"][class*="point"], [id*="bon"][id*="point"]');
+            if(el && /\d/.test(el.textContent)) pts.textContent=(el.textContent.match(/\d[\d\s]*/)||['–'])[0].trim();
+          }
+          if(btn) btn.addEventListener('click',function(){
+            var l=launcher();
+            if(l){ l.click(); }
+            else if(window.BON && typeof window.BON.open==='function'){ window.BON.open(); }
+            else { btn.textContent='Öppna Rewards-knappen nere till höger'; }
+          });
+          setTimeout(tryBalance,1500); setTimeout(tryBalance,4000);
+        })();
+      </script>
+        <div class="ivk-card ivk-blk">
+      {%- if last_order -%}
+          {%- assign li = last_order.line_items.first -%}
+          {%- assign track = '' -%}
+          {%- for it in last_order.line_items -%}{%- if it.fulfillment.tracking_url and track == '' -%}{%- assign track = it.fulfillment.tracking_url -%}{%- endif -%}{%- endfor -%}
+          <div class="ivk-bh"><h2>Senaste ordern</h2>
+            <span>{%- if track != '' -%}<a class="ivk-link" href="{{ track }}" target="_blank" rel="noopener">Spåra</a> · {%- endif -%}<a class="ivk-link" href="{{ last_order.customer_url }}">Visa detaljer</a>{%- if last_order.cancelled == false and last_order.fulfillment_status == 'fulfilled' -%} · <a class="ivk-link" href="/pages/retur?order={{ last_order.name | remove: '#' }}">Begär retur</a>{%- endif -%}</span>
+          </div>
+          <div class="ivk-ord">
+            <div class="ivk-ord-img">{%- if li.image -%}<img src="{{ li.image | image_url: width: 160 }}" alt="" width="160" height="160" loading="lazy">{%- endif -%}</div>
+            <div class="ivk-ord-info">
+              <b>{{ last_order.name }}</b>
+              <span>{{ li.product.title | default: li.title }}{% if li.variant.title != 'Default Title' and li.variant.title != blank %} · {{ li.variant.title }}{% endif %}{% if last_order.line_items.size > 1 %} + {{ last_order.line_items.size | minus: 1 }} till{% endif %}</span>
+              <span>{{ last_order.created_at | date: '%-d %b %Y' }} · {{ last_order.total_price | money }}</span>
+            </div>
+            {%- if last_order.cancelled -%}
+              <span class="ivk-pill">Avbruten</span>
+            {%- elsif last_order.fulfillment_status == 'fulfilled' -%}
+              <span class="ivk-pill ivk-pill--ok">Skickad</span>
+            {%- else -%}
+              <span class="ivk-pill ivk-pill--warn">Behandlas</span>
+            {%- endif -%}
+          </div>
+      {%- else -%}
+          <div class="ivk-bh"><h2>Senaste ordern</h2></div>
+          <div class="ivk-ord">
+            <div class="ivk-ord-img" style="background:#f0e6d3"></div>
+            <div class="ivk-ord-info"><b>Ingen order än</b><span>Din första IVA-order dyker upp här.</span></div>
+            <a class="ivk-btn ivk-btn--sm" href="{{ routes.collections_url }}/produkter">Se kollektionen</a>
+          </div>
+      {%- endif -%}
+        </div>
+
+      <div class="ivk-two">
+        <div class="ivk-card ivk-blk">
+          <div class="ivk-bh"><h2>Leveransadress</h2><a class="ivk-link" href="{{ routes.account_addresses_url }}">Ändra</a></div>
+          {%- if customer.default_address -%}
+            <p>{{ customer.default_address | format_address }}</p>
+          {%- else -%}
+            <p class="ivk-small">Ingen adress sparad än.</p>
+          {%- endif -%}
+        </div>
+        <div class="ivk-card ivk-blk">
+          <div class="ivk-bh"><h2>Mina favoriter</h2><a class="ivk-link" href="/pages/favoriter">Visa alla</a></div>
+          <p><b id="ivkFavCount">0</b> sparade produkter</p>
+          <p class="ivk-small" style="margin-top:.5rem">Tryck på hjärtat på en produkt för att spara den här.</p>
+          <p class="ivk-small" style="margin-top:.9rem">Kontouppgifter: {{ customer.email }} · <a class="ivk-link" href="{{ routes.account_url }}">Ändra</a></p>
+        </div>
+      </div>
+      <script>(function(){var el=document.getElementById('ivkFavCount');if(!el)return;try{el.textContent=(JSON.parse(localStorage.getItem('iva_wishlist')||'[]')).length;}catch(e){}})();</script>
+      <script>
+        (function(){
+          var target=document.getElementById('ordrar'); if(!target) return;
+          function go(){ var top=target.getBoundingClientRect().top+window.pageYOffset-110; window.scrollTo({top:top,behavior:'smooth'}); }
+          document.querySelectorAll('a[href$="#ordrar"]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); go(); history.replaceState(null,'','#ordrar'); }); });
+          if(location.hash==='#ordrar'){ setTimeout(go,150); }
+        })();
+      </script>
+
+      <div class="ivk-card ivk-blk" id="ordrar">
+        <div class="ivk-bh"><h2>Orderhistorik</h2><span class="ivk-small">Ångra eller returnera inom 14 dagar via Begär retur.</span></div>
+        {%- if customer.orders.size > 0 -%}
+            <table>
+              <tr class="ivk-thead"><th>Order</th><th>Datum</th><th>Produkt</th><th>Summa</th><th>Status</th></tr>
+              {%- for o in customer.orders limit: 20 -%}
+                <tr>
+                  <td><a href="{{ o.customer_url }}">{{ o.name }}</a></td>
+                  <td>{{ o.created_at | date: '%-d %b %Y' }}</td>
+                  <td>{{ o.line_items.first.title }}{% if o.line_items.size > 1 %} +{{ o.line_items.size | minus: 1 }}{% endif %}</td>
+                  <td>{{ o.total_price | money }}</td>
+                  <td>
+                    {%- if o.cancelled -%}<span class="ivk-pill">Avbruten</span>
+                    {%- elsif o.fulfillment_status == 'fulfilled' -%}<span class="ivk-pill ivk-pill--ok">Skickad</span> <a class="ivk-link ivk-ret" href="/pages/retur?order={{ o.name | remove: '#' }}">Begär retur</a>
+                    {%- else -%}<span class="ivk-pill ivk-pill--warn">Behandlas</span>{%- endif -%}
+                  </td>
+                </tr>
+              {%- endfor -%}
+            </table>
+            {%- if customer.orders_count > 20 -%}
+              <p class="ivk-small" style="margin-top:1rem"><a href="{{ routes.account_url }}" style="text-decoration:underline">Visa alla {{ customer.orders_count }} ordrar →</a></p>
+            {%- endif -%}
+        {%- else -%}
+          <div class="ivk-empty">
+            <p>Du har inte lagt någon order än.</p>
+            <a class="ivk-btn" href="{{ routes.collections_url }}/produkter">Se kollektionen</a>
+          </div>
+        {%- endif -%}
+      </div>
+    </main>
+  </div>
+</section>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "IVA Mitt konto",
+  "settings": [
+    { "type": "header", "content": "IVA-poäng (BON Loyalty)" },
+    { "type": "checkbox", "id": "points_enable", "label": "Visa IVA-poäng (kräver BON Loyalty)", "default": false },
+    { "type": "text", "id": "points_note", "label": "Text under saldot", "default": "1 kr = 1 poäng · 100 poäng = 10 kr rabatt i kassan" },
+    { "type": "header", "content": "Startvy (visas för utloggade)" },
+    { "type": "image_picker", "id": "gate_image", "label": "Bakgrundsbild (desktop, liggande)" },
+    { "type": "image_picker", "id": "gate_image_mobile", "label": "Bakgrundsbild mobil (stående, valfritt)" },
+    { "type": "select", "id": "gate_focus", "label": "Bildens fokuspunkt", "default": "center 40%", "options": [
+      { "value": "center 20%", "label": "Uppe" }, { "value": "center 40%", "label": "Något över mitten" }, { "value": "center", "label": "Mitten" }, { "value": "center 70%", "label": "Nere" } ] },
+    { "type": "text", "id": "gate_eyebrow", "label": "Liten rubrik", "default": "Mitt konto" },
+    { "type": "text", "id": "gate_heading", "label": "Rubrik", "default": "Välkommen till IVA" },
+    { "type": "text", "id": "gate_text", "label": "Text", "default": "Spara favoriter, följ dina ordrar och bevaka produkter som är slut." },
+    { "type": "text", "id": "gate_button", "label": "Knapptext", "default": "Logga in / Skapa konto" },
+    { "type": "text", "id": "gate_note", "label": "Liten text under knappen", "default": "Inget lösenord – vi mejlar dig en engångskod." }
+  ],
+  "presets": [ { "name": "IVA Mitt konto" } ]
+}
+{% endschema %}

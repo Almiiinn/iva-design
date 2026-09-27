@@ -1,0 +1,86 @@
+{
+  "sections": {
+    "iva_villkor_fAbrnw": {
+      "type": "iva-villkor",
+      "blocks": {
+        "section_ztYq3y": {
+          "type": "section",
+          "settings": {
+            "title": "Vem ansvarar",
+            "text": "<p>2M Interlokal AB, org.nr 559356-3991, <br/>Ninni Kronbergs gata 20, 113 68 Stockholm, är personuppgiftsansvarig för behandlingen av dina personuppgifter på ivadesign.se. Kontakta oss på <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a> vid frågor.</p>"
+          }
+        },
+        "section_BGxH8W": {
+          "type": "section",
+          "settings": {
+            "title": "Vilka uppgifter vi samlar in",
+            "text": "<p>När du handlar: namn, adress, e-post, telefonnummer, orderhistorik och betaluppgifter (betalningen hanteras av Shopify Payments och Klarna – vi ser aldrig dina kortuppgifter). När du skapar konto: e-post och namn. När du bevakar en produkt eller prenumererar på nyhetsbrev: e-post. När du besöker sajten: IP-adress, enhet och besöksdata via cookies (se nedan).</p>"
+          }
+        },
+        "section_gxexHH": {
+          "type": "section",
+          "settings": {
+            "title": "Varför vi behandlar dem",
+            "text": "<ul><li>För att fullgöra köpavtalet: hantera beställning, betalning, leverans, retur och reklamation.</li><li>För att uppfylla lagkrav, t.ex. bokföringslagen (uppgifter sparas i 7 år).</li><li>Med ditt samtycke: nyhetsbrev och bevakning av produkter – du kan när som helst avsluta.</li><li>Med stöd av intresseavvägning: kundservice, förbättring av butiken och förebyggande av bedrägeri.</li></ul>"
+          }
+        },
+        "section_8DH7YG": {
+          "type": "section",
+          "settings": {
+            "title": "Vilka vi delar uppgifter med",
+            "text": "<p>Shopify (butiksplattform och betalning), Klarna (betalning), PostNord (leverans), Notify Me (lagerbevakning), BON Loyalty (kundklubb och poäng), Pandectes (hantering av cookie-samtycke) samt e-postleverantör för orderbekräftelser och nyhetsbrev. Alla är personuppgiftsbiträden eller självständigt ansvariga enligt avtal, och behandlar bara uppgifterna för sitt ändamål. Vi säljer aldrig dina uppgifter.</p>"
+          }
+        },
+        "section_ky8yjK": {
+          "type": "section",
+          "settings": {
+            "title": "Hur länge vi sparar",
+            "text": "<p>Orderuppgifter sparas så länge lagen kräver (bokföring, 7 år). Kontouppgifter sparas tills du ber oss radera kontot. Nyhetsbrev och bevakningar tills du avslutar dem. Besöksdata enligt cookie-inställningarna nedan.</p>"
+          }
+        },
+        "section_cAX7GH": {
+          "type": "section",
+          "settings": {
+            "title": "Cookies",
+            "text": "<p>Vi använder nödvändiga cookies för att butiken ska fungera (varukorg, inloggning) samt, med ditt samtycke, cookies för statistik och marknadsföring. Du väljer själv i cookie-rutan vid första besöket och kan ändra dig när som helst via länken i sidfoten.</p>"
+          }
+        },
+        "section_CbfrFE": {
+          "type": "section",
+          "settings": {
+            "title": "Dina rättigheter",
+            "text": "<p>Du har rätt att få tillgång till dina uppgifter, få dem rättade eller raderade, begränsa behandlingen, invända mot behandling och få ut dina uppgifter (dataportabilitet). Mejla <a href=\"mailto:iam@ivadesign.se\">iam@ivadesign.se</a> så hjälper vi dig inom 30 dagar. Är du missnöjd med hur vi hanterar dina uppgifter kan du klaga hos Integritetsskyddsmyndigheten (IMY), <a href=\"https://www.imy.se\" target=\"_blank\" rel=\"noopener\">imy.se</a>.</p>"
+          }
+        },
+        "section_K9a9YC": {
+          "type": "section",
+          "settings": {
+            "title": "Ändringar",
+            "text": "<p>Vi kan uppdatera denna policy. Den senaste versionen finns alltid här, med datum längst ner.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "section_ztYq3y",
+        "section_BGxH8W",
+        "section_gxexHH",
+        "section_8DH7YG",
+        "section_ky8yjK",
+        "section_cAX7GH",
+        "section_CbfrFE",
+        "section_K9a9YC"
+      ],
+      "name": "IVA Personuppgiftspolicy",
+      "settings": {
+        "eyebrow": "Integritet",
+        "heading": "Personuppgiftspolicy",
+        "text": "Hur vi hanterar dina uppgifter – kort och begripligt.",
+        "company": "2M Interlokal AB, org.nr 559356-3991",
+        "updated": "24 september 2026"
+      }
+    }
+  },
+  "order": [
+    "iva_villkor_fAbrnw"
+  ]
+}

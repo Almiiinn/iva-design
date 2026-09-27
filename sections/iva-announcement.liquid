@@ -1,0 +1,221 @@
+{% comment %}
+  IVA Announcement Bar — smal reklamremsa ovanför headern
+  Fil: sections/iva-announcement.liquid
+{% endcomment %}
+
+{%- if section.settings.show_bar -%}
+<div class="iva-ann" id="ivaAnn">
+  <div class="iva-ann-inner">
+
+    {%- if section.settings.link != blank -%}
+      <a class="iva-ann-text" href="{{ section.settings.link }}">
+        {%- if section.settings.icon != blank -%}
+          <span class="iva-ann-icon">{{ section.settings.icon }}</span>
+        {%- endif -%}
+        {{ section.settings.text }}
+      </a>
+    {%- else -%}
+      <p class="iva-ann-text">
+        {%- if section.settings.icon != blank -%}
+          <span class="iva-ann-icon">{{ section.settings.icon }}</span>
+        {%- endif -%}
+        {{ section.settings.text }}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.show_close -%}
+      <button class="iva-ann-close" id="ivaAnnClose" aria-label="Stäng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    var bar  = document.getElementById('ivaAnn');
+    var close = document.getElementById('ivaAnnClose');
+
+    function applyFix(annH, hdrH) {
+      document.documentElement.style.setProperty('--iva-ann-h',   annH + 'px');
+      document.documentElement.style.setProperty('--iva-total-h', (annH + hdrH) + 'px');
+    }
+
+    function adjust() {
+      if (!bar || bar.style.display === 'none') return;
+      var annH = bar.offsetHeight;
+      var nav  = document.getElementById('nav') ||
+                 document.querySelector('nav.nav') ||
+                 document.querySelector('nav');
+      var hdrH = nav ? nav.offsetHeight : 0;
+      if (annH > 0 && hdrH > 0) applyFix(annH, hdrH);
+    }
+
+    /* INGEN adjust() vid sidladdning — CSS-variablerna hanterar det.
+       JS används bara för resize och stäng-knappen. */
+    window.addEventListener('resize', adjust);
+
+    if (close) {
+      close.addEventListener('click', function () {
+        var nav  = document.getElementById('nav') ||
+                   document.querySelector('nav.nav') ||
+                   document.querySelector('nav');
+        var hdrH = nav ? nav.offsetHeight : 0;
+        bar.classList.add('is-hidden');
+        setTimeout(function () { bar.style.display = 'none'; }, 350);
+        applyFix(0, hdrH);
+      });
+    }
+  })();
+</script>
+
+<style>
+  /*
+    Exakta beräknade höjder per skärmstorlek — satta direkt i CSS
+    så layouten är korrekt redan vid allra första rendern, utan JS.
+
+    Reklamremsa (.iva-ann-inner padding .65rem×2 + text ~14px) ≈ 37px
+    Nav (padding .8rem×2 + logo 45px)                          ≈ 71px
+    Summa desktop                                              ≈ 108px
+
+    Mobil <768px: nav padding .8rem×2 + logo 45px             ≈ 71px
+    Mobil <540px: remsa padding .6rem×2 + text ~13px          ≈ 34px, summa ≈ 105px
+  */
+  :root {
+    --iva-ann-h:   37px;
+    --iva-total-h: 108px;
+  }
+  @media (max-width: 768px) {
+    :root { --iva-ann-h: 35px; --iva-total-h: 106px; }
+  }
+  @media (max-width: 540px) {
+    :root { --iva-ann-h: 34px; --iva-total-h: 105px; }
+  }
+
+  #nav  { top:         var(--iva-ann-h)   !important; }
+  body  { padding-top: var(--iva-total-h) !important; }
+
+  .iva-ann {
+    background: {{ section.settings.bg_color }};
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 999999;
+    transition: transform .35s ease;
+  }
+  .iva-ann.is-hidden {
+    transform: translateY(-100%);
+  }
+  .iva-ann-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: .65rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    gap: .75rem;
+  }
+  .iva-ann-icon {
+    font-size: .8rem;
+    margin-right: .3rem;
+    opacity: .85;
+  }
+  .iva-ann-text {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    text-decoration: none;
+    text-align: center;
+    margin: 0;
+    transition: opacity .2s ease;
+  }
+  a.iva-ann-text:hover { opacity: .75; }
+  .iva-ann-close {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .25rem;
+    color: {{ section.settings.text_color }};
+    opacity: .55;
+    transition: opacity .2s ease;
+    display: flex;
+    align-items: center;
+  }
+  .iva-ann-close svg { width: 14px; height: 14px; display: block; }
+  .iva-ann-close:hover { opacity: 1; }
+
+  @media (max-width: 540px) {
+    .iva-ann-inner { padding: .6rem 2.5rem; }
+    .iva-ann-text  { font-size: .58rem; letter-spacing: 2px; }
+  }
+</style>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "IVA Reklamremsa",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_bar",
+      "label": "Visa reklamremsan",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "FRI FRAKT ÖVER 249 KR"
+    },
+    {
+      "type": "text",
+      "id": "icon",
+      "label": "Emoji / ikon (valfritt)",
+      "info": "T.ex. 🚚 eller ✨ — lämna tomt om du inte vill ha någon",
+      "default": "✨"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Länk (valfritt)",
+      "info": "Gör texten klickbar, t.ex. till fraktsidan"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_close",
+      "label": "Visa stäng-knapp",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Bakgrundsfärg",
+      "default": "#1D1D1F"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Textfärg",
+      "default": "#f5edd9"
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Reklamremsa"
+    }
+  ]
+}
+{% endschema %}

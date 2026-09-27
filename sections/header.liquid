@@ -1,0 +1,169 @@
+<nav class="nav" id="nav">
+  <a class="logo" href="{{ routes.root_url }}">
+    <img src="https://cdn.shopify.com/s/files/1/0978/7932/7064/files/iva-logga-tight.png?v=1786275508" alt="IVA" style="height:56px;width:auto;"/>
+  </a>
+  <div class="nav-links">
+    <a href="{{ routes.collections_url }}/produkter">KOLLEKTIONER</a>
+    <a href="/pages/om-oss">OM OSS</a>
+  </div>
+  <div class="nav-icons">
+    <a href="{{ routes.search_url }}" aria-label="Sök"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></a>
+    <a href="/pages/favoriter" class="nav-fav" id="navFav" aria-label="Mina favoriter" style="position:relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 21s-7.2-4.6-9.6-9.1C.7 8.6 2.4 4.6 6.2 4.1c2.2-.3 4 .8 5.8 2.8 1.8-2 3.6-3.1 5.8-2.8 3.8.5 5.5 4.5 3.8 7.8C19.2 16.4 12 21 12 21z"/></svg><span class="fav-count" id="navFavCount" style="display:none">0</span></a>
+    <a href="{% if customer %}/pages/mitt-konto{% else %}/customer_authentication/login?return_to=%2Fpages%2Fmitt-konto{% endif %}" aria-label="Mitt konto" class="nav-account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a>
+    <a href="{{ routes.cart_url }}" style="position:relative;" aria-label="Varukorg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-count"{% if cart.item_count == 0 %} style="display:none"{% endif %}>{{ cart.item_count }}</span></a>
+    <button type="button" class="nav-burger" id="navBurger" aria-label="Öppna meny" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="{{ routes.collections_url }}/produkter">KOLLEKTIONER</a>
+  <a href="/pages/om-oss">OM OSS</a>
+  <a href="/pages/favoriter">FAVORITER<span id="navFavCountMobile"></span></a>
+  <a href="{% if customer %}/pages/mitt-konto{% else %}/customer_authentication/login?return_to=%2Fpages%2Fmitt-konto{% endif %}">{% if customer %}MITT KONTO{% else %}LOGGA IN{% endif %}</a>
+  <a href="{{ routes.search_url }}">SÖK</a>
+  <a href="{{ routes.cart_url }}">VARUKORG{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}</a>
+</div>
+
+<style>
+  #nav.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 3.5rem;
+    background: rgba(249, 243, 235, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(212, 195, 172, 0.35);
+  }
+  #nav.nav .logo img {
+    filter: none;
+  }
+  #nav.nav .nav-links a {
+    color: #1C2B3A;
+    font-size: .85rem;
+    letter-spacing: 1.5px;
+  }
+  #nav.nav .nav-icons a {
+    color: #1C2B3A;
+  }
+
+  /* Favoriter i headern */
+  #nav.nav .nav-fav svg { display: block; transition: transform .2s; }
+  #nav.nav .nav-fav.has-items svg path { fill: #c0392b; stroke: #c0392b; }
+  #nav.nav .nav-fav:hover svg { transform: scale(1.08); }
+  #nav.nav .fav-count {
+    position: absolute; top: -6px; right: -8px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 8px; background: #1C2B3A; color: #fff;
+    font-size: .62rem; font-weight: 600; line-height: 16px; text-align: center;
+  }
+
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: .5rem;
+  }
+  .nav-burger span {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: #1C2B3A;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .nav-burger.is-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-burger.is-open span:nth-child(2) { opacity: 0; }
+  .nav-burger.is-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .nav-mobile-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(78vw, 320px);
+    background: rgba(249, 243, 235, 0.97);
+    border-left: 1px solid rgba(212, 195, 172, 0.4);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1.6rem;
+    padding: 2rem 2.5rem;
+    transform: translateX(100%);
+    transition: transform .35s ease;
+  }
+  .nav-mobile-menu.is-open { transform: translateX(0); }
+  .nav-mobile-menu a {
+    color: #1C2B3A;
+    text-decoration: none;
+    font-size: .85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    #nav.nav { padding: 0.3rem 1.5rem; }
+    #nav.nav .nav-links { display: none; }
+    .nav-burger { display: flex; }
+    #nav.nav .logo img { margin-top: 6px; }
+  }
+</style>
+
+<script>
+  (function () {
+    var burger = document.getElementById('navBurger');
+    var menu = document.getElementById('navMobileMenu');
+    if (!burger || !menu) return;
+    burger.addEventListener('click', function () {
+      var open = menu.classList.toggle('is-open');
+      burger.classList.toggle('is-open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    menu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        menu.classList.remove('is-open');
+        burger.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+  })();
+
+  /* Favorit-räknare (läser samma lista som produktsidan sparar) */
+  (function () {
+    var link = document.getElementById('navFav'), badge = document.getElementById('navFavCount'), mob = document.getElementById('navFavCountMobile');
+    if (!link) return;
+    function update() {
+      var n = 0;
+      try { n = (JSON.parse(localStorage.getItem('iva_wishlist') || '[]')).length; } catch (e) {}
+      link.classList.toggle('has-items', n > 0);
+      if (badge) { badge.textContent = n; badge.style.display = n > 0 ? 'block' : 'none'; }
+      if (mob) { mob.textContent = n > 0 ? ' (' + n + ')' : ''; }
+    }
+    update();
+    window.addEventListener('storage', update);
+    window.addEventListener('focus', update);
+    window.addEventListener('iva:wishlist', update);
+    document.addEventListener('click', function () { setTimeout(update, 50); }, true);
+  })();
+</script>
+
+{% schema %}{"name":"Header","settings":[]}{% endschema %}

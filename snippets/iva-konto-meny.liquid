@@ -1,0 +1,23 @@
+{%- comment -%} IVA – sidomeny för kontosidorna. {% render 'iva-konto-meny', active: 'oversikt' %} – används av sektionen iva-konto {%- endcomment -%}
+{%- if customer.first_name != blank and customer.last_name != blank -%}
+  {%- assign a = customer.first_name | slice: 0 -%}{%- assign b = customer.last_name | slice: 0 -%}
+  {%- assign initials = a | append: b | upcase -%}
+{%- else -%}
+  {%- assign initials = customer.email | slice: 0, 2 | upcase -%}
+{%- endif -%}
+<aside class="ivk-card ivk-menu">
+  <div class="ivk-me">
+    <i>{{ initials }}</i>
+    <div>
+      <b>{{ customer.name | default: customer.email }}</b>
+      <span>{{ customer.email }}</span>
+    </div>
+  </div>
+  <a href="/pages/mitt-konto"{% if active == 'oversikt' %} class="is-on"{% endif %}>Översikt</a>
+  <a href="/pages/mitt-konto#ordrar"{% if active == 'ordrar' %} class="is-on"{% endif %}>Mina ordrar</a>
+  <a href="{{ routes.account_addresses_url }}">Adresser</a>
+  <a href="{{ routes.account_url }}">Kontoinställningar</a>
+  <a href="/pages/favoriter">Favoriter</a>
+  <a href="/pages/kontakt">Kontakta oss</a>
+  <a href="{{ routes.account_logout_url }}" class="ivk-out">Logga ut</a>
+</aside>

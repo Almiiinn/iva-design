@@ -1,0 +1,189 @@
+{%- comment -%}
+  IVA – Ångra & retur (sections/iva-retur.liquid). Sida: /pages/retur (mall "retur").
+  Vänster: villkor i korthet + 4 steg. Höger: returformulär (Shopifys kontaktformulär, ärende "Retur").
+{%- endcomment -%}
+
+<section class="ivr">
+  <div class="ivr-inner">
+    <div class="ivr-head">
+      <p class="ivr-eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1>{{ section.settings.heading }}</h1>
+      <p class="ivr-intro">{{ section.settings.intro }}</p>
+    </div>
+
+    <div class="ivr-facts">
+      <div><b>{{ section.settings.fact1_value }}</b><span>{{ section.settings.fact1_label }}</span></div>
+      <div><b>{{ section.settings.fact2_value }}</b><span>{{ section.settings.fact2_label }}</span></div>
+      <div><b>{{ section.settings.fact3_value }}</b><span>{{ section.settings.fact3_label }}</span></div>
+      <div><b>{{ section.settings.fact4_value }}</b><span>{{ section.settings.fact4_label }}</span></div>
+    </div>
+
+    <div class="ivr-grid">
+      <div class="ivr-left">
+        <p class="ivr-eyebrow">Så här gör du</p>
+        <ol class="ivr-steps">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step' -%}
+              <li {{ block.shopify_attributes }}><b>{{ block.settings.title }}</b><span>{{ block.settings.text }}</span></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ol>
+
+        <div class="ivr-rules">
+          <p class="ivr-eyebrow">Bra att veta</p>
+          {{ section.settings.rules }}
+        </div>
+
+        <div class="ivr-claim">
+          <h3>Fel på varan?</h3>
+          <p>{{ section.settings.claim_txt }}</p>
+        </div>
+      </div>
+
+      <div class="ivr-card" id="retur-formular">
+        {%- form 'contact', id: 'ivrForm', class: 'ivr-form' -%}
+          {%- if form.posted_successfully? -%}
+            <div class="ivr-ok">
+              <h2>Din returanmälan är mottagen!</h2>
+              <p>Inom 2 arbetsdagar får du ett mejl från PostNord med en QR-kod. Visa den hos närmaste PostNord-ombud, så skriver de ut fraktetiketten – du behöver ingen skrivare. Vänta med att lämna in paketet tills du fått QR-koden.</p>
+              <a class="ivr-btn" href="/pages/hjalpcenter#retur">Läs mer om returer</a>
+            </div>
+          {%- else -%}
+            <h2>{{ section.settings.form_heading }}</h2>
+            <p class="ivr-sub">{{ section.settings.form_text }}</p>
+            {%- if form.errors -%}
+              <div class="ivr-err">{{ form.errors | default_errors }}</div>
+            {%- endif -%}
+            <input type="hidden" name="contact[Ärende]" value="Retur / ångerrätt">
+            <div class="ivr-row">
+              <div class="ivr-field"><label for="ivrFirst">Förnamn</label><input type="text" id="ivrFirst" name="contact[Förnamn]" required autocomplete="given-name" value="{% if customer %}{{ customer.first_name }}{% endif %}"></div>
+              <div class="ivr-field"><label for="ivrLast">Efternamn</label><input type="text" id="ivrLast" name="contact[Efternamn]" autocomplete="family-name" value="{% if customer %}{{ customer.last_name }}{% endif %}"></div>
+            </div>
+            <div class="ivr-row">
+              <div class="ivr-field"><label for="ivrEmail">E-post</label><input type="email" id="ivrEmail" name="contact[email]" required autocomplete="email" value="{% if customer %}{{ customer.email }}{% endif %}"></div>
+              <div class="ivr-field"><label for="ivrOrder">Ordernummer</label><input type="text" id="ivrOrder" name="contact[Ordernummer]" required placeholder="#1001"></div>
+            </div>
+            <div class="ivr-field"><label for="ivrProd">Vilken vara gäller det?</label><input type="text" id="ivrProd" name="contact[Produkt]" required placeholder="T.ex. Magsafe-skal, iPhone 15 Pro, sand"></div>
+            <div class="ivr-field"><label for="ivrReason">Anledning</label>
+              <select id="ivrReason" name="contact[Anledning]">
+                <option>Ångrar köpet</option><option>Fel storlek / modell</option><option>Fel färg</option><option>Motsvarar inte förväntan</option><option>Varan är skadad eller trasig</option><option>Fick fel vara</option><option>Annat</option>
+              </select>
+            </div>
+            <div class="ivr-field"><label for="ivrMsg">Meddelande <em>(valfritt)</em></label><textarea id="ivrMsg" name="contact[body]" rows="4" placeholder="Berätta gärna mer – vid skada, beskriv felet."></textarea></div>
+            <label class="ivr-check"><input type="checkbox" required><span>Varan är oanvänd och i originalskick, eller så anmäler jag en skada/felaktig vara.</span></label>
+            <button type="submit" class="ivr-btn ivr-btn--wide">Skicka returanmälan</button>
+            <p class="ivr-fine">Vi behandlar dina uppgifter enligt vår <a href="/pages/personuppgiftspolicy">personuppgiftspolicy</a>.</p>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ivr { background: #faf6f0; color: #1D1D1F; padding: 2.5rem 1.25rem 4rem; margin-bottom: -2px; }
+  .ivr * { box-sizing: border-box; }
+  .ivr-inner { max-width: 1180px; margin: 0 auto; }
+  .ivr-eyebrow { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .6rem; }
+  .ivr-head { text-align: center; max-width: 640px; margin: 0 auto 2rem; }
+  .ivr h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(2.4rem, 4vw, 3.4rem); margin: .2rem 0 .8rem; color: #1D1D1F !important; line-height: 1.1; }
+  .ivr-intro { color: rgba(29,29,31,.65); margin: 0; line-height: 1.65; }
+  .ivr-facts { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; text-align: center; margin-bottom: 2.5rem; }
+  .ivr-facts div { background: #f7f3eb; border: 1px solid rgba(29,29,31,.09); border-radius: 16px; padding: 1.2rem .8rem; }
+  .ivr-facts b { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.9rem; font-weight: 500; line-height: 1.1; }
+  .ivr-facts span { font-size: .66rem; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(29,29,31,.62); }
+  .ivr-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: start; }
+  .ivr-steps { list-style: none; margin: 0 0 2rem; padding: 0; counter-reset: s; display: grid; gap: .9rem; }
+  .ivr-steps li { counter-increment: s; position: relative; padding: 1.1rem 1.2rem 1.1rem 3.6rem; background: #fff; border: 1px solid rgba(29,29,31,.09); border-radius: 16px; }
+  .ivr-steps li::before { content: counter(s); position: absolute; left: 1.1rem; top: 1.05rem; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: #1D1D1F; color: #fff; font-size: .8rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .ivr-steps b { display: block; font-size: .95rem; margin-bottom: .2rem; }
+  .ivr-steps span { font-size: .88rem; color: rgba(29,29,31,.65); line-height: 1.55; }
+  .ivr-rules { font-size: .92rem; line-height: 1.65; color: rgba(29,29,31,.75); }
+  .ivr-rules ul { padding-left: 1.2rem; margin: 0; }
+  .ivr-rules li { margin-bottom: .5rem; }
+  .ivr-claim { margin-top: 2rem; padding: 1.3rem 1.4rem; border-left: 3px solid #1D1D1F; background: #f7f3eb; border-radius: 0 16px 16px 0; }
+  .ivr-claim h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.5rem; margin: 0 0 .3rem; color: #1D1D1F !important; }
+  .ivr-claim p { margin: 0; font-size: .9rem; line-height: 1.6; color: rgba(29,29,31,.7); }
+  .ivr-card { background: #f7f3eb; border: 1px solid rgba(29,29,31,.09); border-radius: 18px; padding: 1.8rem 1.4rem; }
+  .ivr-card h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.9rem; margin: 0 0 .3rem; color: #1D1D1F !important; }
+  .ivr-sub { color: rgba(29,29,31,.65); font-size: .9rem; margin: 0 0 1.5rem; line-height: 1.55; }
+  .ivr-row { display: grid; grid-template-columns: 1fr; gap: 0 1rem; }
+  .ivr-field { margin-bottom: 1rem; }
+  .ivr-field label { display: block; font-size: .66rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(29,29,31,.62); margin: 0 0 .45rem; }
+  .ivr-field label em { font-style: normal; text-transform: none; letter-spacing: 0; }
+  .ivr-field input, .ivr-field select, .ivr-field textarea { width: 100%; background: #fff; border: 1px solid rgba(29,29,31,.12); border-radius: 12px; padding: .9rem 1.1rem; font: inherit; font-size: .92rem; color: #1D1D1F; outline: none; transition: border-color .2s; }
+  .ivr-field input:focus, .ivr-field select:focus, .ivr-field textarea:focus { border-color: #1D1D1F; }
+  .ivr-field textarea { resize: vertical; min-height: 110px; }
+  .ivr-check { display: flex; gap: .7rem; align-items: flex-start; font-size: .84rem; line-height: 1.5; color: rgba(29,29,31,.75); margin: .2rem 0 1.2rem; cursor: pointer; }
+  .ivr-check input { width: 18px; height: 18px; margin-top: .15rem; accent-color: #1D1D1F; flex: none; }
+  .ivr-btn { display: inline-flex; align-items: center; justify-content: center; background: #1D1D1F; color: #fff !important; border: 1.5px solid #1D1D1F; border-radius: 50px; padding: 1rem 1.8rem; font-size: .68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; cursor: pointer; font-family: inherit; transition: transform .2s, box-shadow .2s; }
+  .ivr-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.16); }
+  .ivr-btn--wide { width: 100%; }
+  .ivr-fine { font-size: .74rem; color: rgba(29,29,31,.6); text-align: center; margin: 1rem 0 0; line-height: 1.5; }
+  .ivr-fine a { color: inherit; text-decoration: underline; }
+  .ivr-err { background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #8e2a1f; border-radius: 12px; padding: .8rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
+  .ivr-ok { text-align: center; padding: 2rem 0; }
+  .ivr-ok h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 1.9rem; margin: 0 0 .3rem; color: #1D1D1F !important; }
+  .ivr-ok p { color: rgba(29,29,31,.65); margin: .4rem 0 1.4rem; line-height: 1.6; }
+  @media (min-width: 860px) {
+    .ivr { padding: 4.5rem 2.5rem 5rem; }
+    .ivr-facts { grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 3.5rem; }
+    .ivr-grid { grid-template-columns: 1fr 1.1fr; gap: 4rem; }
+    .ivr-row { grid-template-columns: 1fr 1fr; }
+    .ivr-card { padding: 2.6rem; }
+  }
+</style>
+
+<script>
+  (function(){
+    var m = location.search.match(/[?&]order=([^&]+)/); var f = document.getElementById('ivrOrder');
+    if (m && f && !f.value) { f.value = '#' + decodeURIComponent(m[1]).replace('#',''); }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "IVA Ångra & retur",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Liten rubrik", "default": "Ångra & retur" },
+    { "type": "text", "id": "heading", "label": "Rubrik", "default": "Inte helt nöjd? Inga problem." },
+    { "type": "textarea", "id": "intro", "label": "Inledning", "default": "Du har 14 dagars ångerrätt på allt hos IVA. Anmäl din retur här så skickar vi en QR-kod som du visar hos närmaste PostNord-ombud – ingen skrivare behövs." },
+    { "type": "header", "content": "Fyra snabba fakta" },
+    { "type": "text", "id": "fact1_value", "label": "Fakta 1 – värde", "default": "14 dagar" },
+    { "type": "text", "id": "fact1_label", "label": "Fakta 1 – etikett", "default": "ångerrätt" },
+    { "type": "text", "id": "fact2_value", "label": "Fakta 2 – värde", "default": "49 kr" },
+    { "type": "text", "id": "fact2_label", "label": "Fakta 2 – etikett", "default": "returfrakt" },
+    { "type": "text", "id": "fact3_value", "label": "Fakta 3 – värde", "default": "14 dagar" },
+    { "type": "text", "id": "fact3_label", "label": "Fakta 3 – etikett", "default": "till återbetalning" },
+    { "type": "text", "id": "fact4_value", "label": "Fakta 4 – värde", "default": "3 år" },
+    { "type": "text", "id": "fact4_label", "label": "Fakta 4 – etikett", "default": "reklamationsrätt" },
+    { "type": "header", "content": "Bra att veta" },
+    { "type": "richtext", "id": "rules", "label": "Villkor i korthet", "default": "<ul><li>Varan ska vara oanvänd och i originalskick. Du får såklart prova skalet på telefonen.</li><li>Returadress: IVA design / 2M Interlokal AB, Gustafsvägen 4, 169 58 Solna – den står redan på etiketten du får via QR-koden.</li><li>Returfrakten (49 kr) dras av från återbetalningen. Vid fel vara eller skada står vi för frakten.</li><li>Vi återbetalar till samma betalsätt inom 14 dagar efter att vi tagit emot returen.</li><li>Ej uthämtade paket räknas inte som retur – då debiteras 99 kr för frakt och hantering.</li></ul>" },
+    { "type": "header", "content": "Reklamation" },
+    { "type": "textarea", "id": "claim_txt", "label": "Text", "default": "Är varan skadad eller fungerar inte som den ska har du reklamationsrätt i 3 år. Fyll i formuläret, välj ”Varan är skadad eller trasig” och beskriv felet så återkommer vi inom 2 arbetsdagar. Vi står för returfrakten." },
+    { "type": "header", "content": "Formulär" },
+    { "type": "text", "id": "form_heading", "label": "Rubrik", "default": "Anmäl retur" },
+    { "type": "textarea", "id": "form_text", "label": "Text", "default": "Fyll i uppgifterna så återkommer vi inom 2 arbetsdagar med en QR-kod för returfrakten." }
+  ],
+  "blocks": [
+    {
+      "type": "step", "name": "Steg",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Rubrik", "default": "Anmäl din retur" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Fyll i formuläret här på sidan inom 14 dagar från att du tog emot paketet." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "IVA Ångra & retur",
+      "blocks": [
+        { "type": "step", "settings": { "title": "Anmäl din retur", "text": "Fyll i formuläret här på sidan inom 14 dagar från att du tog emot paketet." } },
+        { "type": "step", "settings": { "title": "Få din QR-kod", "text": "Inom 2 arbetsdagar får du ett mejl från PostNord med en QR-kod – ingen etikett att skriva ut." } },
+        { "type": "step", "settings": { "title": "Packa och lämna in", "text": "Lägg varan i originalförpackningen med en lapp med ordernumret. Visa QR-koden hos närmaste PostNord-ombud, så skriver de ut etiketten. Returen går till IVA, Gustafsvägen 4, 169 58 Solna." } },
+        { "type": "step", "settings": { "title": "Få pengarna tillbaka", "text": "När returen kommit fram återbetalar vi inom 14 dagar till samma betalsätt som du använde." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

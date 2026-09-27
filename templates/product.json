@@ -1,0 +1,198 @@
+{
+  "sections": {
+    "iva_produktsida_RMK83c": {
+      "type": "iva-produktsida",
+      "blocks": {
+        "color_group_qhM9rz": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "svart-penna",
+            "color_1": "#000000",
+            "product_2": "djuprosa-penna",
+            "color_2": "#a5255f",
+            "product_3": "beige-penna",
+            "color_3": "#c4b09a",
+            "product_4": "magenta-penna",
+            "color_4": "#e83473",
+            "product_5": "",
+            "color_5": "",
+            "product_6": "",
+            "color_6": ""
+          }
+        },
+        "color_group_hKhtrp": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "gron-silikonskal",
+            "color_1": "#bdc9a8",
+            "product_2": "gra-silikonskal",
+            "color_2": "#6a6a6a",
+            "product_3": "beige-silikonskal",
+            "color_3": "#e8d8b8",
+            "product_4": "mjukrosa-silikonskal",
+            "color_4": "#d4aecb",
+            "product_5": "pastelrosa-silikonskal",
+            "color_5": "#efc8d4",
+            "product_6": "svart-silikonskal",
+            "color_6": "#000000"
+          }
+        },
+        "color_group_7GKAnx": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "beige-magsafe",
+            "color_1": "#c4b09a",
+            "product_2": "lila-magsafe",
+            "color_2": "#c59fe8",
+            "product_3": "ljusgra-magsafe",
+            "color_3": "#8e8e8e",
+            "product_4": "morkbla-magsafe",
+            "color_4": "#1e3a5f",
+            "product_5": "orange-magsafe",
+            "color_5": "#f5a050",
+            "product_6": "svart-magsafe",
+            "color_6": "#000000"
+          }
+        },
+        "color_group_RRBNEr": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "rosa-lappstift",
+            "color_1": "#efc8d4",
+            "product_2": "djuprosa-lappstift",
+            "color_2": "#a02659",
+            "product_3": "dampad-rosa-lappstift",
+            "color_3": "#bd9092",
+            "product_4": "lavender-bla-lappstift",
+            "color_4": "#6c6e9a",
+            "product_5": "beige-lappstift",
+            "color_5": "#c4b09a",
+            "product_6": "svart-lappstift",
+            "color_6": "#000000"
+          }
+        },
+        "color_group_Q4JQFc": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "svart-airpods",
+            "color_1": "#000000",
+            "product_2": "ljussalvia-airpods",
+            "color_2": "#9fa79e",
+            "product_3": "morkgra-airpods",
+            "color_3": "#8e8e8e",
+            "product_4": "salviagron-airpods",
+            "color_4": "#9ba5a2",
+            "product_5": "beige-airpods",
+            "color_5": "#c4b09a",
+            "product_6": "",
+            "color_6": ""
+          }
+        },
+        "color_group_b7WQWL": {
+          "type": "color_group",
+          "settings": {
+            "product_1": "svart-iphone-17-airpods",
+            "color_1": "#000000",
+            "product_2": "marinbla-iphone-17-airpods",
+            "color_2": "#1e3a5f",
+            "product_3": "gra-iphone-17-airpods",
+            "color_3": "#6a6a6a",
+            "product_4": "orange-iphone-17-airpods",
+            "color_4": "#dc591b",
+            "product_5": "vinrod-iphone-17-airpods",
+            "color_5": "#772a36",
+            "product_6": "",
+            "color_6": ""
+          }
+        },
+        "feat_image_7jFPVQ": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Kundbild_pastellrosa.jpg"
+          }
+        },
+        "feat_image_AenUwY": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Kundbild_2_skal.jpg"
+          }
+        },
+        "feat_image_EdyLwn": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Penna_rosa_kundbild.png"
+          }
+        },
+        "feat_image_XBHxbL": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Kundbild_2_skal_orange_och_gra.png"
+          }
+        },
+        "feat_image_t6Rrpi": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Svart_kundbild.png"
+          }
+        },
+        "feat_image_qAhMdt": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Lavender_kundbild.png"
+          }
+        },
+        "feat_image_TQ7BN9": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Rosa_lappglans_kundbild.png"
+          }
+        },
+        "feat_image_jM7aFB": {
+          "type": "feat_image",
+          "settings": {
+            "image": "shopify://shop_images/Pastellrosa_kundbild.png"
+          }
+        }
+      },
+      "block_order": [
+        "color_group_qhM9rz",
+        "color_group_hKhtrp",
+        "color_group_7GKAnx",
+        "color_group_RRBNEr",
+        "color_group_Q4JQFc",
+        "color_group_b7WQWL",
+        "feat_image_7jFPVQ",
+        "feat_image_AenUwY",
+        "feat_image_EdyLwn",
+        "feat_image_XBHxbL",
+        "feat_image_t6Rrpi",
+        "feat_image_qAhMdt",
+        "feat_image_TQ7BN9",
+        "feat_image_jM7aFB"
+      ],
+      "name": "IVA Produktsida",
+      "settings": {
+        "skip_images": 2,
+        "max_images": 0,
+        "stage_bg": "#ffffff",
+        "eyebrow": "IVA Design",
+        "lead": "",
+        "specs": "<p>Material: flytande silikon med mikrofiberfoder<br/>MagSafe-kompatibel<br/>Förhöjd kamerakant 1,2 mm</p>",
+        "notify_enable": true,
+        "notify_label": "Meddela när varan finns tillgänglig",
+        "trust_show": true,
+        "trust_heading": "Säker betalning & snabb leverans!",
+        "trust_shipping": "PostNord",
+        "feat_interval": 3,
+        "feat_eyebrow": "Designat för vardagen",
+        "feat_heading": "Allt du behöver.\nInget du inte behöver.",
+        "feat_text": "Vi tog bort plånboken, nyckelknippan och tilltrasslade sladdar — och lät skalet göra jobbet. Perfekt passform. Klart.",
+        "feat_link": "",
+        "feat_link_label": "Se hela kollektionen"
+      }
+    }
+  },
+  "order": [
+    "iva_produktsida_RMK83c"
+  ]
+}
