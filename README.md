@@ -4,6 +4,8 @@ Skräddarsytt Shopify-tema byggt från grunden för [ivadesign.se](https://ivade
 
 Live sedan september 2026.
 
+![IVA design – startsida](screenshot.png)
+
 ## Om projektet
 
 Temat är inte baserat på Dawn eller något annat färdigt tema – varje sektion, mall och snippet är handskriven i Liquid, HTML, CSS och vanilla JavaScript. Designen bygger på en creme/svart palett med Cormorant Garamond för rubriker och Jost för brödtext.
